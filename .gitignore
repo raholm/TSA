@@ -14,6 +14,9 @@
 # Output files from R CMD check
 /*.Rcheck/
 
+# R project file
+*.Rproj
+
 # RStudio files
 .Rproj.user/
 
@@ -31,3 +34,7 @@ vignettes/*.pdf
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
+.Rproj.user
+
+# Hidden Mac OSX files that are not needed
+.DS_Store
