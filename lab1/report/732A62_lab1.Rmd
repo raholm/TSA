@@ -145,3 +145,46 @@ library(MASS)
 stepAIC(dumlm,direction = "backward", steps = 1000)
 ```
 
+
+
+# Assignment 3 
+
+```{r}
+
+library(astsa)
+
+plot(oil,col = "blue", ylim = c(0,400))
+lines(gas,col = "red")
+
+loil <- log(oil)
+lgas <- log(gas)
+
+plot(loil,col = "blue", ylim = c(2,6))
+lines(lgas,col = "red")
+```
+
+
+```{r}
+dloil<-diff(loil)
+dlgas<-diff(lgas)
+
+plot(dloil,col = "blue", ylim = c(-0.3,0.4), lwd = 2)
+lines(dlgas,col = "red", lty = 2, lwd = 1.25)
+
+acf(dloil)
+acf(dlgas)
+```
+
+
+```{r}
+xt <- dloil
+yt <- dlgas
+
+par(mfrow = c(2,2))
+plot(x = xt, y = yt )
+plot(x = xt, y = lag(yt,1) )
+plot(x = xt, y = lag(yt,2) )
+plot(x = xt, y = lag(yt,3) )
+par(old)
+```
+
