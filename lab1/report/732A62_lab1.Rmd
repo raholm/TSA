@@ -70,3 +70,78 @@ acf
 filter(0:3,c(-0.8,2))
 ```
 
+
+# Assignment 2
+
+```{r}
+rhine <- read.csv2("../data/Rhine.csv")
+
+rhine <- ts(rhine)
+
+rhine
+
+plot(y = rhine[,4], x = rhine[,3], type = "l")
+# abline(lm(rhine[,4] ~ rhine[,3], data = rhine))
+# lines(predobj$fit + 1.96*predobj$se.fit ~ as.numeric(rhine[,3]))
+# lines(predobj$fit - 1.96*predobj$se.fit ~ as.numeric(rhine[,3]))
+
+
+
+
+x <- rhine[,4]
+old <- par(mfrow = c(3,4))
+for (i in 1:12){ 
+ plot(lag(x,i),x)
+}
+par(old)
+```
+
+
+```{r}
+lmobj<-lm(rhine[,4] ~ rhine[,3], data = rhine)
+res1 <- residuals(lmobj)
+summary(lmobj)
+
+
+acf(res1)
+plot(res1)
+abline(h = 0, col = "blue", lwd =2)
+predobj<- predict(lmobj, se.fit = TRUE)
+```
+
+
+```{r}
+plot(x = rhine[,3], y= rhine[,4], type = "l", lwd =2)
+lines(ksmooth(y=rhine[,4], x = rhine[,3], bandwidth = 5), col = "blue", lwd = 2.25, lty =2)
+
+
+kersmo <- ksmooth(y=rhine[,4], x = rhine[,3], bandwidth = 5)
+
+kerres <- kersmo$y - rhine[,4]
+
+plot(kerres, type = "p")
+abline(h = 0, col = "blue", lwd = 2)
+
+acf(kerres)
+
+
+```
+
+
+```{r}
+
+month.f <- as.factor(rhine[,2])
+dummyfit <- as.data.frame(model.matrix(rhine[,4]~ rhine[,3]+month.f))[,-1]
+dumlm <- lm(rhine[,4]~.,dummyfit)
+
+plot(resid(dumlm))
+abline(h = 0, col = "blue", lwd=2)
+acf(resid(dumlm))
+
+```
+
+```{r}
+library(MASS)
+stepAIC(dumlm,direction = "backward", steps = 1000)
+```
+
