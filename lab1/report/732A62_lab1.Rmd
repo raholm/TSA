@@ -1,0 +1,72 @@
+---
+title: "732A62 Lab 1"
+author: "Emil K Svensson & Rasmus Holm"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Assignment 1 
+
+```{r}
+
+t <- 0:99 
+ts1 <- rep(0,100)
+
+set.seed(12345)
+for (i in 3:100){ 
+  ts1[i] <- -0.8*ts1[i-2] + rnorm(1,0,1) 
+}
+
+ts2 <- cos( 2*pi*t / 5)
+
+
+
+vt1 <- rep(0,100)
+vt2 <- rep(0,100)
+
+for (i in 1:100){
+  if (i == 1){
+    vt1[i] <- 0.2 * ts1[i]
+    vt2[i] <- 0.2 * ts2[i]
+
+  }
+  
+   if (i == 2){
+    vt1[i] <- 0.2 *(ts1[i-1] + ts1[i])
+    vt2[i] <- 0.2 *(ts2[i-1] + ts2[i])
+   }
+  
+    if (i == 3){
+    vt1[i] <- 0.2 *(ts1[i] + ts1[i-1] + ts1[i-2])
+    vt2[i] <- 0.2 *(ts2[i] + ts2[i-1] + ts2[i-2])
+   }
+  
+  if (i == 4){
+    vt1[i] <- 0.2 *(ts1[i] + ts1[i-1] + ts1[i-2] + ts1[i-3])
+    vt2[i] <- 0.2 *(ts2[i] + ts2[i-1] + ts2[i-2] + ts2[i-3])
+   }
+  
+  if (i >= 5){
+    vt1[i] <- 0.2 *(ts1[i] + ts1[i-1] + ts1[i-2] + ts1[i-3] + ts1[i-4])
+    vt2[i] <- 0.2 *(ts2[i] + ts2[i-1] + ts2[i-2] + ts2[i-3] + ts2[i-4])
+  }
+  
+}
+
+par(mfrow = c(2,2))
+plot(ts1,type = "l", main = "ts1")
+plot(ts2, type = "l", main = "ts2")
+plot(vt1,type = "l", main = "vt1")
+plot(vt2, type = "l", main = "vt2")
+par(mfrow = c(1,1))
+
+
+acf
+
+filter(0:3,c(-0.8,2))
+```
+
