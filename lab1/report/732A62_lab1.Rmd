@@ -11,63 +11,75 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Assignment 1 
 
+## a) 
+
 ```{r}
 
-t <- 0:99 
-ts1 <- rep(0,100)
-
 set.seed(12345)
-for (i in 3:100){ 
-  ts1[i] <- -0.8*ts1[i-2] + rnorm(1,0,1) 
-}
+t   <- c(0,0,rnorm(100,0,1))
+ts1 <- filter(t, filter = c(0,-0.8), 
+              method = "recursive", sides = 1) 
 
+t   <- 1:100 
 ts2 <- cos( 2*pi*t / 5)
 
 
 
-vt1 <- rep(0,100)
-vt2 <- rep(0,100)
+vt1 <- filter(ts1, filter = c(rep(0.2, times = 5)),
+              method = "convolution", sides = 1)
 
-for (i in 1:100){
-  if (i == 1){
-    vt1[i] <- 0.2 * ts1[i]
-    vt2[i] <- 0.2 * ts2[i]
-
-  }
-  
-   if (i == 2){
-    vt1[i] <- 0.2 *(ts1[i-1] + ts1[i])
-    vt2[i] <- 0.2 *(ts2[i-1] + ts2[i])
-   }
-  
-    if (i == 3){
-    vt1[i] <- 0.2 *(ts1[i] + ts1[i-1] + ts1[i-2])
-    vt2[i] <- 0.2 *(ts2[i] + ts2[i-1] + ts2[i-2])
-   }
-  
-  if (i == 4){
-    vt1[i] <- 0.2 *(ts1[i] + ts1[i-1] + ts1[i-2] + ts1[i-3])
-    vt2[i] <- 0.2 *(ts2[i] + ts2[i-1] + ts2[i-2] + ts2[i-3])
-   }
-  
-  if (i >= 5){
-    vt1[i] <- 0.2 *(ts1[i] + ts1[i-1] + ts1[i-2] + ts1[i-3] + ts1[i-4])
-    vt2[i] <- 0.2 *(ts2[i] + ts2[i-1] + ts2[i-2] + ts2[i-3] + ts2[i-4])
-  }
-  
-}
+vt2 <- filter(ts2, filter = c(rep(0.2, times = 5)),
+              method = "convolution", sides = 1)
 
 par(mfrow = c(2,2))
 plot(ts1,type = "l", main = "ts1")
-plot(ts2, type = "l", main = "ts2")
-plot(vt1,type = "l", main = "vt1")
-plot(vt2, type = "l", main = "vt2")
+plot(ts2, type = "l", main = "ts2", xlab = "Time" )
+plot(vt1,type = "l", main = "Smoothed ts1", ylim = c(-4,4))
+plot(vt2, type = "l", main = "Smoothed ts2", ylim = c(-1,1))
 par(mfrow = c(1,1))
 
 
-acf
+```
 
-filter(0:3,c(-0.8,2))
+Time series 1 (ts1) show no noticable change in its random pattern except the scale which is transformed in to a smaller scale. Time series 2 (ts2) is flatened by the soothing filter and all values are now basicly 0. This is because the average of ts2 lies around zero it is also resonable to expect that a moving average smoother would generate the same (or similar) result. 
+
+## b) 
+
+```{r}
+leftside <- c(1,-4,2,0,0,1) # the x's 
+rightside <- c(1,0,3,0,1,0,-4) # The w's
+
+
+
+causal<- polyroot(leftside)^2 #Not causal
+invertible<- polyroot(rightside) #Non invertible
+
+print("The causal")
+sapply(causal, 
+       FUN = function(x){
+  sqrt(Re(x)^2 + Im(x)^2)
+})
+
+print("The invertible")
+sapply(invertible, 
+       FUN = function(x){
+  sqrt(Re(x)^2 + Im(x)^2)
+})
+
+
+
+```
+Since both parts contains values below 1 they are inside the unit circle and therefor are not causal nor invertible.
+
+
+## c) 
+
+```{r}
+set.seed(54321)
+model1c<- arima.sim(n = 100, list(ar = c(-3/4), ma = c(0,-1/9) ))
+
+acf(model1c)
+ARMAacf(model1c)
 ```
 
 
@@ -180,11 +192,24 @@ acf(dlgas)
 xt <- dloil
 yt <- dlgas
 
-par(mfrow = c(2,2))
+old <- par(mfrow = c(2,2))
 plot(x = xt, y = yt )
 plot(x = xt, y = lag(yt,1) )
 plot(x = xt, y = lag(yt,2) )
 plot(x = xt, y = lag(yt,3) )
 par(old)
+```
+
+```{r}
+
+oilframe <- data.frame(yt,xt, dummy = ts(as.numeric(xt>0)),lagxt =lag(xt,-1))
+oilframe <- ts.intersect(oilframe)
+model3e<- lm(yt~dummy + xt + lagxt, data = oilframe)
+
+resid3e <- resid(model3e)
+
+plot(resid3e, type = "l")
+abline(h=0, col = "red", lwd = 2, lty =1)
+acf(resid3e)
 ```
 
