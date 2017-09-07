@@ -101,11 +101,14 @@ plot(y = rhine[,4], x = rhine[,3], type = "l")
 
 
 x <- rhine[,4]
-old <- par(mfrow = c(3,4))
-for (i in 1:12){ 
- plot(lag(x,i),x)
-}
-par(old)
+#Does the same thing as the for-loop 
+lag.plot(x, lags = 12)
+
+# old <- par(mfrow = c(3,4))
+# for (i in 1:12){ 
+#  plot(lag(x,i),x)
+# }
+# par(old)
 ```
 
 
