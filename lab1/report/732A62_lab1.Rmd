@@ -80,9 +80,9 @@ segments(1:length(tacf), rep(0, length(tacf)), 1:length(tacf), tacf)
 ```{r}
 rhine <- read.csv2("../data/Rhine.csv")
 colnames(rhine)[4] <- "Conc"
+```
 
-rhine_ts <- ts(rhine)
-
+```{r, echo=FALSE}
 plot(y = rhine$Conc, x = rhine$Time, type = "l")
 abline(lm(Conc ~ Time, data = rhine))
 lines(predobj$fit + 1.96 * predobj$se.fit ~ as.numeric(rhine$Time))
@@ -95,19 +95,22 @@ lag.plot(rhine$Conc, lags = 12)
 lmobj <- lm(Conc ~ Time, data = rhine)
 res1 <- residuals(lmobj)
 summary(lmobj)
+```
 
+```{r, echo=FALSE}r
 acf(res1)
 plot(res1)
 abline(h = 0, col = "blue", lwd =2)
-predobj <- predict(lmobj, se.fit = TRUE)
 ```
 
 ```{r}
-plot(x = rhine$Time, y = rhine$Conc, type = "l", lwd =2)
-lines(ksmooth(y = rhine$Conc, x = rhine$Time, bandwidth = 5), col = "blue", lwd = 2.25, lty =2)
-
 kersmo <- ksmooth(y = rhine$Conc, x = rhine$Time, bandwidth = 5)
 kerres <- kersmo$y - rhine$Conc
+```
+
+```{r, echo=FALSE}
+plot(x = rhine$Time, y = rhine$Conc, type = "l", lwd =2)
+lines(kersmo, col = "blue", lwd = 2.25, lty =2)
 
 plot(kerres, type = "p")
 abline(h = 0, col = "blue", lwd = 2)
@@ -117,7 +120,9 @@ acf(kerres)
 ```{r}
 rhine$Month.f <- as.factor(rhine$Month)
 dumlm <- lm(Conc ~ Time + Month.f, rhine)
+```
 
+```{r, echo=FALSE}
 plot(resid(dumlm))
 abline(h = 0, col = "blue", lwd=2)
 acf(resid(dumlm))
@@ -139,25 +144,27 @@ lines(gas, col = "red")
 loil <- log(oil)
 lgas <- log(gas)
 
+dloil <- diff(loil)
+dlgas <- diff(lgas)
+
+xt <- dloil
+yt <- dlgas
+```
+
+```{r, echo=FALSE}
 plot(loil, col = "blue", ylim = c(2, 6))
 lines(lgas, col = "red")
 ```
 
-```{r}
-dloil <- diff(loil)
-dlgas <- diff(lgas)
-
+```{r, echo=FALSE}
 plot(dloil,col = "blue", ylim = c(-0.3, 0.4), lwd = 2)
-lines(dlgas,col = "red", lty = 2, lwd = 1.25)
+lines(dlgas, col = "red", lty = 2, lwd = 1.25)
 
 acf(dloil)
 acf(dlgas)
 ```
 
-```{r}
-xt <- dloil
-yt <- dlgas
-
+```{r, echo=FALSE}
 old <- par(mfrow = c(2,2))
 plot(x = xt, y = yt )
 plot(x = xt, y = lag(yt,1) )
@@ -167,12 +174,12 @@ par(old)
 ```
 
 ```{r}
-oilframe <- data.frame(yt,xt, dummy = ts(as.numeric(xt > 0)),lagxt = lag(xt, -1))
-oilframe <- ts.intersect(oilframe)
-model3e <- lm(yt~dummy + xt + lagxt, data = oilframe)
-
+tss <- ts.intersect(yt=yt, xt=xt, lag1xt=lag(xt, 1), dummy=xt > 0)
+model3e <- lm(yt ~ xt + lag1xt + dummy, data = tss)
 resid3e <- resid(model3e)
+```
 
+```{r, echo=FALSE}
 plot(resid3e, type = "l")
 abline(h=0, col = "red", lwd = 2, lty =1)
 acf(resid3e)
