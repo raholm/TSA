@@ -68,17 +68,19 @@ Since both parts contains values below 1 they are inside the unit circle and the
 ```{r}
 set.seed(12345)
 model1c <- arima.sim(n = 100, list(ar = c(-3 / 4), ma = c(0, -1 / 9)))
-acf(model1c)
-
 tacf <- ARMAacf(ar=c(-3 / 4), ma=c(0, -1/9), lag.max=20)
+
+old <- par(mfrow=c(1 , 2))
+acf(model1c)
 plot(tacf, type="n", main="Theoretical")
 segments(1:length(tacf), rep(0, length(tacf)), 1:length(tacf), tacf)
 abline(h=0)
+par(old)
 ```
 
 The ACF in the first plot shows a high correlation between all the lags except lag 11 and lag 12. Lag 2 has a larger correlation with the initial observation than the other lags. There seems to be no tendencies of the correlation dying down as the lags increases.
 
-In the theoretical ACF it seems to indicate that the correlation should be dying down in a positive to negative correlations between the lags. This would indicate that the ARMA we fitted is apart from what is expected from the theoretical and therefore not apropriate for the data.
+In the theoretical ACF it seems to indicate that the correlation should be dying down in a positive to negative correlations between the lags. This would indicate that the ARMA we fitted is apart from what is expected from the theoretical and therefore not appropriate for the data.
 
 \newpage
 
@@ -107,7 +109,7 @@ In the first plot there seems a monthly variation over all years with a linear d
 lag.plot(rhine$Conc, lags = 12)
 ```
 
-There seems to be a strong correlation between lags 1,11, and 12 and the original variable. A seasonal trend with a clear winter and summer period seems to be present. 
+There seems to be a strong correlation between lags 1,11, and 12 and the original variable. A seasonal trend with a clear winter and summer period seems to be present.
 
 ## b)
 
@@ -142,17 +144,22 @@ kerres <- kersmo$y - rhine$Conc
 ```{r, echo=FALSE}
 plot(x = rhine$Time, y = rhine$Conc, type = "l", lwd =2)
 lines(kersmo, col = "blue", lwd = 2.25, lty =2)
+```
 
+We fitted a kernel smoother close to a linear model since the task given is to eliminate the trend, as seen in the first plot the fit seems to follow the general trend nicely.
+
+```{r, echo=FALSE}
 plot(kerres, type = "l")
 abline(h = 0, col = "blue", lwd = 2)
+```
+
+For the Residual-plot the values seems to be around 0 but with a very high time dependence between the residuals which isn't that big of suprise seeing how the model is fitted straight through the fluctuations between winters and summers.
+
+```{r, echo=FALSE}
 acf(kerres)
 ```
 
-We fitted a kernel smoother close to a linear model since the task given is to eliminate the trend, as seen in the first plot the fit seems to follow the general trend nicely. 
-
-For the Residual-plot the values seems to be around 0 but with a very high time dependence between the residuals which isn't that big of suprise seeing how the model is fitted straight through the fluctuations between winters and summers. 
-
-The AFC comfirms what has been seen in the previous plots, a strong seasonal pattern presents it self in the correlations between the lags. 
+The AFC confirms what has been seen in the previous plots, a strong seasonal pattern presents itself in the correlations between the lags.
 
 ## d)
 
@@ -164,12 +171,15 @@ dumlm <- lm(Conc ~ Time + Month.f, rhine)
 ```{r, echo=FALSE}
 plot(resid(dumlm), type = "l")
 abline(h = 0, col = "blue", lwd=2)
+```
+
+The model with dummy-variables seems to have reduced the time-dependency between residuals close in time and varies around zero.
+
+```{r, echo=FALSE}
 acf(resid(dumlm))
 ```
 
-The model with dummy-variables seems to have reduced the time-dependency between residuals close in time and varies around zero. 
-
-Judging from the AFC we come to a similar conclusion where most of the correlation between lags have dissapeard, some correlation seem to remain in the second lag.
+Judging from the AFC we come to a similar conclusion where most of the correlation between lags have disappeared, some correlation seem to remain in the second lag.
 
 ## e)
 
@@ -220,11 +230,13 @@ plot(dloil,col = "blue", ylim = c(-0.3, 0.4), lwd = 2)
 lines(dlgas, col = "red", lty = 1, lwd = 1.25)
 ```
 
-In the plot above we see the two time series after computing the first difference and we can see a resemblance of the two with a few different peaks, but otherwise quite similar. The mean seems more stable except a wild fluctuation around 2009 and could be considerd stationary now. 
+In the plot above we see the two time series after computing the first difference and we can see a resemblance of the two with a few different peaks, but otherwise quite similar. The mean seems more stable except a wild fluctuation around 2009 and could be considerd stationary now.
 
 ```{r, echo=FALSE}
+old <- par(mfrow=c(1, 2))
 acf(dloil)
 acf(dlgas)
+par(old)
 ```
 
 The autocorrelation plots show that there is not much correlation in the data after transformations.
@@ -255,8 +267,6 @@ It does not seem to be any relationship between oil and gas when oil has a lead 
 ## e)
 
 ```{r}
-
-
 tss <- ts.intersect(yt=yt, xt=xt, lag1xt=lag(xt, 1), dummy=xt > 0)
 model3e <- lm(yt ~ xt + lag1xt + dummy, data = tss)
 resid3e <- resid(model3e)
