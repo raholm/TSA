@@ -101,7 +101,7 @@ lines(predobj$fit + 1.96 * predobj$se.fit ~ as.numeric(rhine$Time))
 lines(predobj$fit - 1.96 * predobj$se.fit ~ as.numeric(rhine$Time))
 ```
 
-In the first plot there seems a monthly variation over all years with a linear decreasing trend with what could be considerd a constant variance. It could be debated that it might be a lower variance in the end series.
+In the first plot there seems a monthly variation over all years with a linear decreasing trend with what could be considered a constant variance. It could be debated that it might be a lower variance in the end series.
 
 ```{r}
 lag.plot(rhine$Conc, lags = 12)
@@ -117,11 +117,20 @@ res1 <- residuals(lmobj)
 summary(lmobj)
 ```
 
+We can see from the linear fit that the concentration is reduced over time which is statistical significant.
+
 ```{r, echo=FALSE}
 acf(res1)
-plot(res1)
+```
+
+There is clearly a seasonality trend in the data that repeat every 12 or so months. The concentration increases during the winter months and decreases during the summer months.
+
+```{r, echo=FALSE}
+plot(res1, type="l")
 abline(h = 0, col = "blue", lwd =2)
 ```
+
+The same trend can be seen in the residuals.
 
 ## c)
 
@@ -210,8 +219,6 @@ In the plot above we see the two time series after computing the first differenc
 ```{r, echo=FALSE}
 acf(dloil)
 acf(dlgas)
-
-?acf
 ```
 
 The autocorrelation plots show that there is not much correlation in the data after transformations.
