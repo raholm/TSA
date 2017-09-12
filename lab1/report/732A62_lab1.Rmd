@@ -80,6 +80,9 @@ segments(1:length(tacf), rep(0, length(tacf)), 1:length(tacf), tacf)
 ```{r}
 rhine <- read.csv2("../data/Rhine.csv")
 colnames(rhine)[4] <- "Conc"
+
+lmobj <- lm(Conc ~ Time, data = rhine)
+predobj <- predict(lmobj, se.fit = TRUE)
 ```
 
 ```{r, echo=FALSE}
@@ -87,17 +90,15 @@ plot(y = rhine$Conc, x = rhine$Time, type = "l")
 abline(lm(Conc ~ Time, data = rhine))
 lines(predobj$fit + 1.96 * predobj$se.fit ~ as.numeric(rhine$Time))
 lines(predobj$fit - 1.96 * predobj$se.fit ~ as.numeric(rhine$Time))
-
 lag.plot(rhine$Conc, lags = 12)
 ```
 
 ```{r}
-lmobj <- lm(Conc ~ Time, data = rhine)
 res1 <- residuals(lmobj)
 summary(lmobj)
 ```
 
-```{r, echo=FALSE}r
+```{r, echo=FALSE}
 acf(res1)
 plot(res1)
 abline(h = 0, col = "blue", lwd =2)
