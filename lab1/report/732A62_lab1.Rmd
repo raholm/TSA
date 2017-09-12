@@ -148,9 +148,8 @@ stepAIC(dumlm, direction = "backward", steps = 1000)
 
 ## a)
 
-```{r}
+```{r, echo=FALSE}
 library(astsa)
-
 plot(oil, col = "blue", ylim = c(0, 400))
 lines(gas, col = "red")
 ```
@@ -188,7 +187,6 @@ acf(dlgas)
 bw <- 0.05
 kernel <- "normal"
 lags <- c(0, 1, 2, 3)
-
 old <- par(mfrow = c(2,2))
 
 for (lag in lags) {
