@@ -166,11 +166,19 @@ acf(dlgas)
 ```
 
 ```{r, echo=FALSE}
+bw <- 0.05
+kernel <- "normal"
+lags <- c(0, 1, 2, 3)
+
 old <- par(mfrow = c(2,2))
-plot(x = xt, y = yt )
-plot(x = xt, y = lag(yt,1) )
-plot(x = xt, y = lag(yt,2) )
-plot(x = xt, y = lag(yt,3) )
+
+for (lag in lags) {
+    x <- xt[(lag + 1):length(xt)]
+    y <- yt[1:(length(yt) - lag)]
+    plot(x, y)
+    lines(ksmooth(x, y, kernel, bw))
+}
+
 par(old)
 ```
 
