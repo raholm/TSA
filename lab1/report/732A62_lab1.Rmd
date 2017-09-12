@@ -87,9 +87,6 @@ In the theoretical ACF it seems to indicate that the correlation should be dying
 ```{r}
 rhine <- read.csv2("../data/Rhine.csv")
 colnames(rhine)[4] <- "Conc"
-
-lmobj <- lm(Conc ~ Time, data = rhine)
-predobj <- predict(lmobj, se.fit = TRUE)
 ```
 
 ```{r, echo=FALSE}
@@ -105,10 +102,12 @@ In the first plot there seems a monthly variation over all years with a linear d
 lag.plot(rhine$Conc, lags = 12)
 ```
 
-
-
+## b)
 
 ```{r}
+lmobj <- lm(Conc ~ Time, data = rhine)
+predobj <- predict(lmobj, se.fit = TRUE)
+
 res1 <- residuals(lmobj)
 summary(lmobj)
 ```
@@ -118,6 +117,8 @@ acf(res1)
 plot(res1)
 abline(h = 0, col = "blue", lwd =2)
 ```
+
+## c)
 
 ```{r}
 kersmo <- ksmooth(y = rhine$Conc, x = rhine$Time, bandwidth = 5)
@@ -133,6 +134,8 @@ abline(h = 0, col = "blue", lwd = 2)
 acf(kerres)
 ```
 
+## d)
+
 ```{r}
 rhine$Month.f <- as.factor(rhine$Month)
 dumlm <- lm(Conc ~ Time + Month.f, rhine)
@@ -144,6 +147,8 @@ abline(h = 0, col = "blue", lwd=2)
 acf(resid(dumlm))
 ```
 
+## e)
+
 ```{r}
 library(MASS)
 stepAIC(dumlm, direction = "backward", steps = 1000)
@@ -151,25 +156,31 @@ stepAIC(dumlm, direction = "backward", steps = 1000)
 
 # Assignment 3
 
-```{r}
-library(astsa)
+## a)
 
+```{r, echo=FALSE}
+library(astsa)
 plot(oil, col = "blue", ylim = c(0, 400))
 lines(gas, col = "red")
+```
 
+## b)
+
+```{r, echo=FALSE}
 loil <- log(oil)
 lgas <- log(gas)
-
-dloil <- diff(loil)
-dlgas <- diff(lgas)
-
-xt <- dloil
-yt <- dlgas
 ```
 
 ```{r, echo=FALSE}
 plot(loil, col = "blue", ylim = c(2, 6))
 lines(lgas, col = "red")
+```
+
+## c)
+
+```{r, echo=FALSE}
+dloil <- diff(loil)
+dlgas <- diff(lgas)
 ```
 
 ```{r, echo=FALSE}
@@ -180,11 +191,12 @@ acf(dloil)
 acf(dlgas)
 ```
 
+## d)
+
 ```{r, echo=FALSE}
 bw <- 0.05
 kernel <- "normal"
 lags <- c(0, 1, 2, 3)
-
 old <- par(mfrow = c(2,2))
 
 for (lag in lags) {
@@ -197,7 +209,12 @@ for (lag in lags) {
 par(old)
 ```
 
+## e)
+
 ```{r}
+xt <- dloil
+yt <- dlgas
+
 tss <- ts.intersect(yt=yt, xt=xt, lag1xt=lag(xt, 1), dummy=xt > 0)
 model3e <- lm(yt ~ xt + lag1xt + dummy, data = tss)
 resid3e <- resid(model3e)
