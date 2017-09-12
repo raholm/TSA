@@ -167,12 +167,18 @@ abline(h = 0, col = "blue", lwd=2)
 acf(resid(dumlm))
 ```
 
+The model with dummy-variables seems to have reduced the time-dependency between residuals close in time and varies around zero. 
+
+Judging from the AFC we come to a similar conclusion where most of the correlation between lags have dissapeard, some correlation seem to remain in the second lag.
+
 ## e)
 
 ```{r}
 library(MASS)
 stepAIC(dumlm, direction = "backward", steps = 1000)
 ```
+
+The backward-elimination procedure ends up with the full model with all dummy variables as the optimal model.
 
 \newpage
 
