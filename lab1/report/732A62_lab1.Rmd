@@ -82,6 +82,8 @@ In the theoretical ACF it seems to indicate that the correlation should be dying
 
 # Assignment 2
 
+## a) 
+
 ```{r}
 rhine <- read.csv2("../data/Rhine.csv")
 colnames(rhine)[4] <- "Conc"
@@ -95,8 +97,16 @@ plot(y = rhine$Conc, x = rhine$Time, type = "l")
 abline(lm(Conc ~ Time, data = rhine))
 lines(predobj$fit + 1.96 * predobj$se.fit ~ as.numeric(rhine$Time))
 lines(predobj$fit - 1.96 * predobj$se.fit ~ as.numeric(rhine$Time))
+```
+
+In the first plot there seems a monthly variation over all years with a linear decreasing trend with what could be considerd a constant variance. It could be debated that it might be a lower variance in the end series. 
+
+```{r}
 lag.plot(rhine$Conc, lags = 12)
 ```
+
+
+
 
 ```{r}
 res1 <- residuals(lmobj)
