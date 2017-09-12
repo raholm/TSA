@@ -73,7 +73,12 @@ acf(model1c)
 tacf <- ARMAacf(ar=c(-3 / 4), ma=c(0, -1/9), lag.max=20)
 plot(tacf, type="n", main="Theoretical")
 segments(1:length(tacf), rep(0, length(tacf)), 1:length(tacf), tacf)
+abline(h=0)
 ```
+
+The ACF in the first plot there seem to be high correlation between all the lags except lag 11 and lag 12. Lag 2 has a larger correlation with the initial observation than the other lags. There seems to be no tendecise of the correlation dying down as the lags increases. 
+
+In the theoretical ACF it seems to indicate that the correlation should be dying down in a positive to negative correlations between the lags. This would indicate that the ARMA we fitted is apart from what is expected from the theoretical and therefor not apropriate for the data.
 
 # Assignment 2
 
