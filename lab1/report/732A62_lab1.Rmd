@@ -32,14 +32,14 @@ vt2 <- filter(ts2, filter = c(rep(0.2, times = 5)),
 
 ```{r, echo=FALSE}
 par(mfrow = c(2, 2))
-plot(ts1,type = "l", main = "ts1")
+plot(ts1,type = "l", main = "ts1", ylab="Value")
 plot(ts2, type = "l", main = "ts2", xlab = "Time" )
-plot(vt1,type = "l", main = "Smoothed ts1", ylim = c(-4, 4))
-plot(vt2, type = "l", main = "Smoothed ts2", ylim = c(-1, 1))
+plot(vt1,type = "l", main = "Smoothed ts1", ylab="Value", ylim = c(-4, 4))
+plot(vt2, type = "l", main = "Smoothed ts2", ylab="Value", ylim = c(-1, 1))
 par(mfrow = c(1, 1))
 ```
 
-Time series 1 (ts1) show no noticeable change in its random pattern except the scale which is transformed in to a smaller scale. Time series 2 (ts2) is flattened by the smoothing filter and all values are now basically 0. This is because the average of ts2 lies around zero it is also reasonable to expect that a moving average smoother would generate the same (or similar) result.
+Time series 1 (ts1) show no noticeable change in its random pattern but the scale has been reduced. Time series 2 (ts2) is flattened by the smoothing filter and all values are now basically 0. This is because the average of ts2 lies around zero because the model is a non-translated cosine function.  It is then reasonable to expect that the moving average smoother would give the same same result since the period is rather small.
 
 ## b)
 
@@ -66,12 +66,12 @@ Since both parts contains values below 1 they are inside the unit circle and the
 ## c)
 
 ```{r}
-set.seed(12345)
+set.seed(54321)
 model1c <- arima.sim(n = 100, list(ar = c(-3 / 4), ma = c(0, -1 / 9)))
 tacf <- ARMAacf(ar=c(-3 / 4), ma=c(0, -1/9), lag.max=20)
 
 old <- par(mfrow=c(1 , 2))
-acf(model1c)
+acf(model1c, main="Empirical")
 plot(tacf, type="n", main="Theoretical")
 segments(1:length(tacf), rep(0, length(tacf)), 1:length(tacf), tacf)
 abline(h=0)
@@ -80,7 +80,7 @@ par(old)
 
 The ACF in the first plot shows a high correlation between all the lags except lag 11 and lag 12. Lag 2 has a larger correlation with the initial observation than the other lags. There seems to be no tendencies of the correlation dying down as the lags increases.
 
-In the theoretical ACF it seems to indicate that the correlation should be dying down in a positive to negative correlations between the lags. This would indicate that the ARMA we fitted is apart from what is expected from the theoretical and therefore not appropriate for the data.
+In the theoretical ACF it seems to indicate that the correlation should be dying down in a positive to negative correlations between the lags. This would indicate that the empirical autocorrelation does not always approximate the theoretical very well which is important to know in practical applications.
 
 \newpage
 
@@ -99,22 +99,19 @@ predobj <- predict(lmobj, se.fit = TRUE)
 ```{r, echo=FALSE}
 plot(y = rhine$Conc, x = rhine$Time, type = "l")
 abline(lm(Conc ~ Time, data = rhine))
-lines(predobj$fit + 1.96 * predobj$se.fit ~ as.numeric(rhine$Time))
-lines(predobj$fit - 1.96 * predobj$se.fit ~ as.numeric(rhine$Time))
 ```
 
 In the first plot there seems a monthly variation over all years with a linear decreasing trend with what could be considered a constant variance. It could be debated that it might be a lower variance in the end series.
 
-```{r}
+```{r, echo=FALSE}
 lag.plot(rhine$Conc, lags = 12)
 ```
 
-There seems to be a strong correlation between lags 1,11, and 12 and the original variable. A seasonal trend with a clear winter and summer period seems to be present.
+There seems to be a strong correlation between lags 1, 11, and 12 and the original variable. A seasonal trend with a clear winter and summer period seems to be present.
 
 ## b)
 
 ```{r}
-
 res1 <- residuals(lmobj)
 summary(lmobj)
 ```
@@ -122,42 +119,38 @@ summary(lmobj)
 We can see from the linear fit that the concentration is reduced over time which is statistical significant.
 
 ```{r, echo=FALSE}
-acf(res1)
-```
-
-There is clearly a seasonality trend in the data that repeat every 12 or so months. The concentration increases during the winter months and decreases during the summer months.
-
-```{r, echo=FALSE}
-plot(res1, type="l")
+old <- par(mfrow=c(1, 2))
+acf(res1, main="")
+plot(res1, type="l", ylab="residual")
 abline(h = 0, col = "blue", lwd =2)
+par(old)
 ```
 
-The same trend can be seen in the residuals.
+There is clearly a seasonality trend in the data that repeat every 12 or so months. The concentration increases during the winter months and decreases during the summer months. The same trend can be seen in the residuals.
 
 ## c)
 
 ```{r}
-kersmo <- ksmooth(y = rhine$Conc, x = rhine$Time, bandwidth = 5)
+kersmo <- ksmooth(y = rhine$Conc, x = rhine$Time, bandwidth = 1)
 kerres <- kersmo$y - rhine$Conc
 ```
 
 ```{r, echo=FALSE}
-plot(x = rhine$Time, y = rhine$Conc, type = "l", lwd =2)
+plot(x = rhine$Time, y = rhine$Conc, type = "l", lwd =2, ylab="Concentration", xlab="Time")
 lines(kersmo, col = "blue", lwd = 2.25, lty =2)
 ```
 
 We fitted a kernel smoother close to a linear model since the task given is to eliminate the trend, as seen in the first plot the fit seems to follow the general trend nicely.
 
 ```{r, echo=FALSE}
-plot(kerres, type = "l")
+old <- par(mfrow=c(1, 2))
+acf(kerres, main="")
+plot(kerres, type = "l", ylab="residual")
 abline(h = 0, col = "blue", lwd = 2)
+par(old)
 ```
 
-For the Residual-plot the values seems to be around 0 but with a very high time dependence between the residuals which isn't that big of suprise seeing how the model is fitted straight through the fluctuations between winters and summers.
-
-```{r, echo=FALSE}
-acf(kerres)
-```
+The residuals show a very high time dependence between each other which is not that big of suprise seeing how the model is fitted straight through the fluctuations between winters and summers.
 
 The AFC confirms what has been seen in the previous plots, a strong seasonal pattern presents itself in the correlations between the lags.
 
@@ -169,15 +162,14 @@ dumlm <- lm(Conc ~ Time + Month.f, rhine)
 ```
 
 ```{r, echo=FALSE}
-plot(resid(dumlm), type = "l")
+old <- par(mfrow=c(1, 2))
+acf(resid(dumlm), main="")
+plot(resid(dumlm), type = "l", ylab="residual")
 abline(h = 0, col = "blue", lwd=2)
+par(old)
 ```
 
-The model with dummy-variables seems to have reduced the time-dependency between residuals close in time and varies around zero.
-
-```{r, echo=FALSE}
-acf(resid(dumlm))
-```
+The model with dummy-variables seems to have reduced variance of the residuals and there seem to be less time-dependency between residuals.
 
 Judging from the AFC we come to a similar conclusion where most of the correlation between lags have disappeared, some correlation seem to remain in the second lag.
 
@@ -255,7 +247,7 @@ old <- par(mfrow = c(2,2))
 for (lag in lags) {
     x <- xt[(lag + 1):length(xt)]
     y <- yt[1:(length(yt) - lag)]
-    plot(x, y, main=paste("Lead time: ", lag))
+    plot(x, y, main=paste("Lead time: ", lag), xlab="loil", ylab="lgas")
     lines(ksmooth(x, y, kernel, bw))
 }
 
@@ -276,14 +268,11 @@ summary(model3e)
 We can see from the linear fit that lag is not significant which supports our analysis so far that there does not seem be any correlation from previous/future data, only from present. The dummy variable is significant and has a positive coefficient indicating that if there is an increase in oil, there is also an increase in gas.
 
 ```{r, echo=FALSE}
-plot(resid3e, type = "l")
+old <- par(mfrow=c(1, 2))
+acf(resid3e, main="")
+plot(resid3e, type = "l", ylab="residual")
 abline(h=0, col = "red", lwd = 2, lty =1)
+par(old)
 ```
 
-The residuals do look stationary with a few outlying peaks. There seems to be no dependency in shorter time or over time either.
-
-```{r, echo=FALSE}
-acf(resid3e)
-```
-
-The autocorrelation for the residuals also indicate that there is no linear relationship between past/future values.
+The residuals do look stationary with a few outlying peaks. There seems to be no dependency neither in short nor long term. The autocorrelations for the residuals also indicate that there is no linear relationship between past/future values.
