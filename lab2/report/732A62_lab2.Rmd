@@ -1,0 +1,13 @@
+---
+title: "732A62 Lab 2"
+author: "Emil K Svensson & Rasmus Holm"
+date: "`r Sys.Date()`"
+output:
+    pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Assignment 1
