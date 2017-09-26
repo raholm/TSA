@@ -12,56 +12,101 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Assignment 1
 
-# a) 
+# a)
 
 ```{r}
 library(astsa)
+library(kernlab)
 
 set.seed(12345)
-AR3 <- arima.sim(1000, model = list(order = c(3,0,0), 
+AR3 <- arima.sim(1000, model = list(order = c(3,0,0),
                                     ar = c(0.8, -0.2, 0.1)))
 
-# The theoretical 
-AR3.pacf<- pacf(AR3) 
-
-
-AR3.data <- ts.intersect(xt = AR3, x1 = lag(AR3,1), x2 =lag(AR3,2), x3= lag(AR3,3) )
+## The theoretical
+AR3.pacf <- pacf(AR3, plot=F)
+AR3.data <- ts.intersect(xt = AR3, x1 = lag(AR3, 1), x2 =lag(AR3, 2), x3= lag(AR3, 3))
 
 AR.lm <- resid(lm(xt ~ x1 + x2, data = AR3.data))
 AR.lm.lag3 <- resid(lm(x3 ~ x1 + x2 , data = AR3.data))
 
-
-AR3.pacf
-cor(AR.lm,AR.lm.lag3)
-
-
-### 
-
-
-
-
-
-
+AR3.pacf[3]
+cor(AR.lm, AR.lm.lag3)
 ```
+
+# b)
 
 ```{r}
 set.seed(12345)
-AR2 <- arima.sim(100, model = list(order = c(2,0,0), 
-                                    ar = c(0.8, 0.1)))
+AR2 <- arima.sim(100, model = list(order = c(2,0,0),
+                                   ar = c(0.8, 0.1)))
 
-ar2.yw <- ar.yw(AR2, order = 2, aic = FALSE)
+ar2.yw <- ar(AR2, order.max = 2, method = "yw", aic = FALSE)
 ar2.ols <- ar(AR2, order.max = 2, method = "ols", aic = FALSE)
 ar2.mle <- arima(AR2, order = c(2,0,0), method = "ML")
 
-
-print(ar2.mle)
-
+ar2.yw
+ar2.ols
+ar2.mle
 ```
 
-Yes, the theoretical value for $$\phi_2$$ is inside the confidence-intervall for the ML estimate. 
+Yes, the theoretical value for $$\phi_2$$ is inside the confidence-intervall for the ML estimate.
 
+# c)
 
 ```{r}
-arima.sim()
+set.seed(12345)
+ma.coef <- c(0.3, rep(0, 10), 0.6)
+ts4 <- arima.sim(n=200, model=list(order=c(0, 0, 12), ma = ma.coef))
+
+theoretical.acf <- ARMAacf(ma=c(ma.coef, 0.3 * 0.6), lag.max=30)
+theoretical.pacf <- ARMAacf(ma=c(ma.coef, 0.3 * 0.6), lag.max=30, pacf=TRUE)
+
+plot(theoretical.acf, type="h", main="Theoretical ACF")
+abline(h=0)
+
+plot(theoretical.pacf, type="h", main="Theoretical PACF")
+abline(h=0)
+
+empirical.acf <- acf(ts4)
+empirical.pacf <- pacf(ts4)
 ```
 
+# d)
+
+```{r}
+set.seed(12345)
+ma.coef <- c(0.3, rep(0, 10), 0.6)
+ts5 <- arima.sim(n=200, model=list(order=c(0, 0, 12), ma = ma.coef))
+
+
+ts5.fit <- arima(ts5, order=c(0, 0, 1), seasonal=list(order=c(0, 0, 1), period=12))
+ts5.pred <- predict(ts5.fit, n.ahead=30, se.fit=TRUE)
+
+plot(ts(c(ts5, ts5.pred$pred)), ylim=c(-4, 4))
+lines(200 + 1:length(ts5.pred$pred), ts5.pred$pred + 1.96 * ts5.pred$se, lty=2, col="red")
+lines(200 + 1:length(ts5.pred$pred), ts5.pred$pred - 1.96 * ts5.pred$se, lty=2, col="red")
+
+gausspr.data <- ts.intersect(x=ts5, x1=lag(ts5, 1), x12=lag(ts5, 12), x13=lag(ts5, 13))
+gausspr.fit <- gausspr(x ~ ., gausspr.data)
+
+plot(ts5)
+lines(fitted(gausspr.fit), col="red", lwd=2)
+```
+
+# e)
+
+```{r}
+set.seed(12345)
+ts6 <- arima.sim(model=list(ma=c(0.5), ar=c(0.7)), n=50)
+
+train <- ts(ts6[1:40])
+test <- ts(ts6[41:50])
+
+ts6.fit <- arima(train, order=c(1, 0, 1), include.mean = F)
+ts6.pred <- predict(ts6.fit, n.ahead=10)
+
+plot(ts(c(train, test)), ylim=c(-4, 7))
+lines(40 + 1:length(test), ts6.pred$pred, col="blue")
+lines(40 + 1:length(test), ts6.pred$pred + 1.96 * ts6.pred$se, lty=2, col="red")
+lines(40 + 1:length(test), ts6.pred$pred - 1.96 * ts6.pred$se, lty=2, col="red")
+```
