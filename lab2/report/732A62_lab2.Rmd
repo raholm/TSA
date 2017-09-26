@@ -11,3 +11,57 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Assignment 1
+
+# a) 
+
+```{r}
+library(astsa)
+
+set.seed(12345)
+AR3 <- arima.sim(1000, model = list(order = c(3,0,0), 
+                                    ar = c(0.8, -0.2, 0.1)))
+
+# The theoretical 
+AR3.pacf<- pacf(AR3) 
+
+
+AR3.data <- ts.intersect(xt = AR3, x1 = lag(AR3,1), x2 =lag(AR3,2), x3= lag(AR3,3) )
+
+AR.lm <- resid(lm(xt ~ x1 + x2, data = AR3.data))
+AR.lm.lag3 <- resid(lm(x3 ~ x1 + x2 , data = AR3.data))
+
+
+AR3.pacf
+cor(AR.lm,AR.lm.lag3)
+
+
+### 
+
+
+
+
+
+
+```
+
+```{r}
+set.seed(12345)
+AR2 <- arima.sim(100, model = list(order = c(2,0,0), 
+                                    ar = c(0.8, 0.1)))
+
+ar2.yw <- ar.yw(AR2, order = 2, aic = FALSE)
+ar2.ols <- ar(AR2, order.max = 2, method = "ols", aic = FALSE)
+ar2.mle <- arima(AR2, order = c(2,0,0), method = "ML")
+
+
+print(ar2.mle)
+
+```
+
+Yes, the theoretical value for $$\phi_2$$ is inside the confidence-intervall for the ML estimate. 
+
+
+```{r}
+arima.sim()
+```
+
