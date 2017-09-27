@@ -110,3 +110,51 @@ lines(40 + 1:length(test), ts6.pred$pred, col="blue")
 lines(40 + 1:length(test), ts6.pred$pred + 1.96 * ts6.pred$se, lty=2, col="red")
 lines(40 + 1:length(test), ts6.pred$pred - 1.96 * ts6.pred$se, lty=2, col="red")
 ```
+
+# Assignment 2 
+```{r}
+chicken <- chicken
+
+old <- par(mfrow = c(2,2))
+acf(chicken, lag.max = 40)
+pacf(chicken, lag.max = 40)
+acf(diff(chicken, lag = 1), lag.max = 40)
+pacf(diff(chicken, lag = 1 ), lag.max = 40)
+par(old)
+```
+
+
+```{r}
+
+assignment2 <- function(data){
+old <- par(mfrow = c(2,2))
+acf(data, lag.max = 40)
+pacf(data, lag.max = 40)
+acf(diff(data, lag = 1), lag.max = 40)
+pacf(diff(data, lag = 1 ), lag.max = 40)
+par(old)
+}
+
+assignment2(chicken)
+```
+
+```{r}
+assignment2(so2)
+```
+
+```{r}
+assignment2(EQcount)
+```
+
+```{r}
+assignment2(HCT)
+```
+
+# Assignment 3
+
+```{r}
+
+
+
+```
+
