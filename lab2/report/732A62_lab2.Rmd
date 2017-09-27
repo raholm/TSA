@@ -17,6 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(astsa)
 library(kernlab)
+library(TSA)
 
 set.seed(12345)
 AR3 <- arima.sim(1000, model = list(order = c(3,0,0),
@@ -86,11 +87,17 @@ plot(ts(c(ts5, ts5.pred$pred)), ylim=c(-4, 4))
 lines(200 + 1:length(ts5.pred$pred), ts5.pred$pred + 1.96 * ts5.pred$se, lty=2, col="red")
 lines(200 + 1:length(ts5.pred$pred), ts5.pred$pred - 1.96 * ts5.pred$se, lty=2, col="red")
 
-gausspr.data <- ts.intersect(x=ts5, x1=lag(ts5, 1), x12=lag(ts5, 12), x13=lag(ts5, 13))
-gausspr.fit <- gausspr(x ~ ., gausspr.data)
+## gausspr.data <- ts.intersect(x=ts5, x1=lag(ts5, 1), x12=lag(ts5, 12), x13=lag(ts5, 13))
+## gausspr.fit <- gausspr(x ~ ., gausspr.data)
+## plot(ts5)
+## lines(fitted(gausspr.fit), col="red", lwd=2)
 
-plot(ts5)
-lines(fitted(gausspr.fit), col="red", lwd=2)
+gausspr.data <- data.frame(y=ts5, x=1:200)
+gausspr.fit <- gausspr(y ~ x, gausspr.data)
+gausspr.pred <- predict(gfit, data.frame(x=201:230))
+
+plot(ts5, xlim=c(0, 230))
+lines(c(fitted(gausspr.fit), gausspr.pred), , col="red")
 ```
 
 # e)
@@ -118,20 +125,17 @@ lines(40 + 1:length(test), ts6.pred$pred - 1.96 * ts6.pred$se, lty=2, col="red")
 
 \newpage
 
-# Assignment 2 
-
+# Assignment 2
 
 ```{r}
-
 assignment2 <- function(data){
-old <- par(mfrow = c(2,2))
-acf(data, lag.max = 40)
-pacf(data, lag.max = 40)
-acf(diff(data, lag = 1), lag.max = 40)
-pacf(diff(data, lag = 1 ), lag.max = 40)
-par(old)
+    old <- par(mfrow = c(2, 2))
+    acf(data, lag.max = 40)
+    pacf(data, lag.max = 40)
+    acf(diff(data, lag = 1), lag.max = 40)
+    pacf(diff(data, lag = 1), lag.max = 40)
+    par(old)
 }
-
 ```
 
 ## Chicken
@@ -140,7 +144,7 @@ par(old)
 assignment2(chicken)
 ```
 
-## so2 
+## so2
 
 ```{r}
 assignment2(so2)
@@ -158,41 +162,73 @@ assignment2(EQcount)
 assignment2(HCT)
 ```
 
+\newpage
+
 # Assignment 3
 
 ```{r}
+plot_helper <- function(data, title) {
+    old <- par(mfrow=c(4, 1))
+    plot(data, main=title)
+    acf(data, lag.max=40, main="")
+    pacf(data, lag.max=40, main="")
+    qqnorm(data, main="", las=1)
+    qqline(data)
+    par(old)
+}
 
+test_helper <- function(data) {
+    print(Box.test(data, lag = 1, type = "Ljung-Box"))
+    print(suppressWarnings(adf.test(data)))
+    e <- eacf(data)
+}
+## k.fit <- ksmooth(x = 1:length(oil),y = oil, bandwidth = 27)
+## lines(x = k.fit$x, y = k.fit$y, col = "red")
+```
 
+## a)
 
-# k.fit <- ksmooth(x = 1:length(oil),y = oil, bandwidth = 27)
-plot(oil, main = "Time Series of Oil")
-# lines(x = k.fit$x, y = k.fit$y, col = "red")
-
-doil <- diff(oil) 
+```{r}
+doil <- diff(oil)
+ddoil <- diff(oil, 2)
 dloil <- diff(log(oil))
-
-plot(doil, main = "Time Series of Oil 1 Difference")
-plot(dloil, main = "Log Transformed Differenced Oil")
-
-ddloil <- diff(dloil)
-
+ddloil <- diff(log(oil), 2)
 ```
 
+\newpage
+
+```{r, echo=FALSE, fig.height=10}
+plot_helper(oil, "Oil")
+```
+
+```{r, echo=FALSE, fig.height=10}
+plot_helper(doil, "1 Difference Oil")
+```
+
+```{r, echo=FALSE, fig.height=10}
+plot_helper(ddoil, "2 Difference Oil")
+```
+
+```{r, echo=FALSE, fig.height=10}
+plot_helper(dloil, "1 Difference log Oil")
+```
+
+```{r, echo=FALSE, fig.height=10}
+plot_helper(ddloil, "2 Difference log Oil")
+```
+
+\newpage
 
 ```{r}
-acf(ddloil, lag.max = 40)
-pacf(ddloil, lag.max = 40)
-TSA::eacf(dloil)
+test_helper(doil)
+test_helper(ddoil)
+test_helper(dloil)
+test_helper(ddloil)
 ```
-
 
 ```{r}
-Box.test(ddloil, lag = 1, type = "Ljung-Box")
-
-qqnorm(dloil,main="Normal probability plot",
-       ylab="Stickprovskvartiler",
-       xlab="Teoretiska kvartiler",las=1)
-qqline(dloil)
-
+fit1 <- arima(ddloil, order=c(1, 2, 0))
+fit2 <- arima(ddloil, order=c(1, 2, 0))
 ```
 
+## b)
