@@ -58,8 +58,8 @@ set.seed(12345)
 ma.coef <- c(0.3, rep(0, 10), 0.6)
 ts4 <- arima.sim(n=200, model=list(order=c(0, 0, 12), ma = ma.coef))
 
-theoretical.acf <- ARMAacf(ma=c(ma.coef, 0.3 * 0.6), lag.max=30)
-theoretical.pacf <- ARMAacf(ma=c(ma.coef, 0.3 * 0.6), lag.max=30, pacf=TRUE)
+theoretical.acf <- ARMAacf(ma=c(ma.coef, 0.3 * 0.6))
+theoretical.pacf <- ARMAacf(ma=c(ma.coef, 0.3 * 0.6), pacf=TRUE)
 
 plot(theoretical.acf, type="h", main="Theoretical ACF")
 abline(h=0)
@@ -105,10 +105,43 @@ test <- ts(ts6[41:50])
 ts6.fit <- arima(train, order=c(1, 0, 1), include.mean = F)
 ts6.pred <- predict(ts6.fit, n.ahead=10)
 
-plot(ts(c(train, test)), ylim=c(-4, 7))
+plot(ts(c(train, test)), ylim=c(-4, 7), type="l")
 lines(40 + 1:length(test), ts6.pred$pred, col="blue")
 lines(40 + 1:length(test), ts6.pred$pred + 1.96 * ts6.pred$se, lty=2, col="red")
 lines(40 + 1:length(test), ts6.pred$pred - 1.96 * ts6.pred$se, lty=2, col="red")
+
+plot(40 + 1:length(test), test, ylim=c(-4, 7), xlim=c(40, 50), type="p")
+points(40 + 1:length(test), ts6.pred$pred, col="blue")
+lines(40 + 1:length(test), ts6.pred$pred + 1.96 * ts6.pred$se, lty=2, col="red")
+lines(40 + 1:length(test), ts6.pred$pred - 1.96 * ts6.pred$se, lty=2, col="red")
+```
+
+\newpage
+
+# Assignment 2
+
+## astsa
+
+```{r}
+
+```
+
+## so2
+
+```{r}
+
+```
+
+## EQcount
+
+```{r}
+
+```
+
+## HCT
+
+```{r}
+
 ```
 
 # Assignment 2 
