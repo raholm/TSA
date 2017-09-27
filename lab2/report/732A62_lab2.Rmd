@@ -18,6 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(astsa)
 library(kernlab)
 library(TSA)
+library(forecast)
 
 set.seed(12345)
 AR3 <- arima.sim(1000, model = list(order = c(3,0,0),
@@ -182,17 +183,26 @@ test_helper <- function(data) {
     print(suppressWarnings(adf.test(data)))
     e <- eacf(data)
 }
-## k.fit <- ksmooth(x = 1:length(oil),y = oil, bandwidth = 27)
-## lines(x = k.fit$x, y = k.fit$y, col = "red")
+
+fit_plot <- function(model) {
+    pred <- predict(model, n.ahead=20, se.fit=TRUE)
+    upper_band <- pred$pred + 1.96 * pred$se
+    lower_band <- pred$pred - 1.96 * pred$se
+
+    plot(c(model$x, pred$pred), type="l", xlim=c(500, length(oil) + 20), ylim=c(min(lower_band), max(upper_band)))
+    lines(length(oil) + 1:20, upper_band, lty=2, col="red")
+    lines(length(oil) + 1:20, lower_band, lty=2, col="red")
+}
 ```
 
 ## a)
 
 ```{r}
+loil <- log(oil)
 doil <- diff(oil)
 ddoil <- diff(oil, 2)
-dloil <- diff(log(oil))
-ddloil <- diff(log(oil), 2)
+dloil <- diff(loil)
+ddloil <- diff(loil, 2)
 ```
 
 \newpage
@@ -226,9 +236,85 @@ test_helper(dloil)
 test_helper(ddloil)
 ```
 
+\newpage
+
 ```{r}
-fit1 <- arima(ddloil, order=c(1, 2, 0))
-fit2 <- arima(ddloil, order=c(1, 2, 0))
+fit1 <- Arima(loil, order=c(0, 2, 1))
+fit1
+
+fit_plot(fit1)
 ```
+
+```{r}
+fit2 <- Arima(loil, order=c(0, 1, 3))
+fit2
+
+fit_plot(fit2)
+```
+
+\newpage
+
+```{r, fig.height=10, echo=FALSE}
+old <- par(mfrow=c(4, 1))
+plot(oil, main="Oil")
+plot(diff(oil), main="Difference 1 Oil")
+plot(dloil, main="Difference 1 Log Oil")
+plot(ddloil, main="Difference 2 Log Oil")
+par(old)
+```
+
+Clearly difference log is the data we should work with. bla, bla, ...
+
+
+```{r, fig.height=10, echo=FALSE}
+old <- par(mfrow=c(4, 1))
+acf(dloil, lag.max=40, main="Difference 1 Log Oil ACF")
+pacf(dloil, lag.max=40, main="Difference 1 Log Oil PACF")
+acf(ddloil, lag.max=40, main="Difference 2 Log Oil ACF")
+pacf(ddloil, lag.max=40, main="Difference 2 Log Oil PACF")
+par(old)
+```
+
+```{r}
+eacf(dloil)
+eacf(ddloil)
+```
+
+```{r, fig.height=10, echo=FALSE}
+old <- par(mfrow=c(2, 1))
+qqnorm(dloil, main="Difference 1 Log Oil", las=1)
+qqline(dloil, main="")
+qqnorm(ddloil, main="Difference 2 Log Oil", las=1)
+qqline(ddloil, main="")
+par(old)
+```
+
+\newpage
+
+```{r}
+fit1 <- Arima(loil, order=c(1, 1, 1))
+fit1
+fit2 <- Arima(loil, order=c(0, 1, 3))
+fit2
+fit3 <- Arima(loil, order=c(0, 2, 1))
+fit3
+```
+
+\newpage
+
+```{r}
+complex_dist <- function(x) {
+    sqrt(Re(x)^2 + Im(x)^2)
+}
+
+sapply(polyroot(c(1, -2, 1)), complex_dist)
+sapply(polyroot(c(1, -1)), complex_dist)
+```
+
+```{r}
+fit_plot(fit3)
+```
+
+\newpage
 
 ## b)
