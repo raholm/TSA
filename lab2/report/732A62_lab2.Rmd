@@ -164,5 +164,35 @@ assignment2(HCT)
 
 
 
+# k.fit <- ksmooth(x = 1:length(oil),y = oil, bandwidth = 27)
+plot(oil, main = "Time Series of Oil")
+# lines(x = k.fit$x, y = k.fit$y, col = "red")
+
+doil <- diff(oil) 
+dloil <- diff(log(oil))
+
+plot(doil, main = "Time Series of Oil 1 Difference")
+plot(dloil, main = "Log Transformed Differenced Oil")
+
+ddloil <- diff(dloil)
+
+```
+
+
+```{r}
+acf(ddloil, lag.max = 40)
+pacf(ddloil, lag.max = 40)
+TSA::eacf(dloil)
+```
+
+
+```{r}
+Box.test(ddloil, lag = 1, type = "Ljung-Box")
+
+qqnorm(dloil,main="Normal probability plot",
+       ylab="Stickprovskvartiler",
+       xlab="Teoretiska kvartiler",las=1)
+qqline(dloil)
+
 ```
 
