@@ -398,8 +398,7 @@ fit_plot(fit3)
 ```{r}
 lunemp <- log(unemp)
 dunemp <- diff(unemp)
-ddunemp <- diff(dunemp, 2)
-dlunemp <- diff(lunemp)
+dlunemp <- diff(lunemp, 1)
 ddlunemp <- diff(lunemp, 2)
 ```
 
@@ -408,12 +407,11 @@ old <- par(mfrow=c(4, 1))
 plot(unemp, main="Unemp")
 plot(dunemp, main="Difference 1 Unemp")
 plot(dlunemp, main="Difference 1 Log Unemp")
-plot(ddlunemp, main="Difference 2 Log Unemp")
+plot(ddlunemp, main="Difference 1 Log Unemp")
 par(old)
 ```
 
-Clearly difference log is the data we should work with. bla, bla, ...
-
+The data is clearly not stationary and to try to make it stationary we do differencing of order 1. The variance seem to increase by time which we try to negative by transforming the data on log-scale. We also used differencing of order 2 which gives a smoother result than differencing of order 1.
 
 ```{r, fig.height=10, echo=FALSE}
 old <- par(mfrow=c(4, 1))
@@ -424,17 +422,30 @@ pacf(ddlunemp, lag.max=40, main="Difference 2 Log Unemp PACF")
 par(old)
 ```
 
+### Difference 1
+\textbf{Seasonality behavior:} The ACF plot suggests a seasonality trend of 12 lags that tails off both in the ACF and the PACF. This suggests an $ARMA_12$ seasonality component. The PACF spikes at 3 multiples which is indicative of AR(3).
+
+There is a seasonality trend that occurs at lags 3, 5, 7, 9, 12, 15, 17, 19, 21, 24.
+
+\textbf{Non-seasonality behavor:}
+
+### Difference 2
+\textbf{Seasonality behavior:}
+
+\textbf{Non-seasonality behavor:} Apart from the seasonal behavior the ACF tails off and the PACF cuts off after lag 2 indicating an AR(2) model.
+
 ```{r}
 eacf(dlunemp)
-eacf(ddlunemp)
 ```
 
+The EACF further suggest that there is no normal ARMA model that is well suited for the data.
+
+
+
 ```{r, fig.height=10, echo=FALSE}
-old <- par(mfrow=c(2, 1))
+old <- par(mfrow=c(1, 1))
 qqnorm(dlunemp, main="Difference 1 Log Unemp", las=1)
 qqline(dlunemp, main="")
-qqnorm(ddlunemp, main="Difference 2 Log Unemp", las=1)
-qqline(ddlunemp, main="")
 par(old)
 ```
 
