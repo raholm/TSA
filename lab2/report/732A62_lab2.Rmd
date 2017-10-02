@@ -171,6 +171,7 @@ After having performed difference of order 1 we can clearly see that there is a 
 The PACF indicates that ...
 
 ### Final Verdict
+Needs further investigation
 ARIMA(1, 0, 0) x $(\_, 1, \_)_10$
 
 \newpage
@@ -214,10 +215,10 @@ The PACF cuts off after lag 1 suggesting AR(1) model.
 The ACF after difference cuts off after lag 1 suggesting a MA(1) model.
 
 ### Difference 1 Data PACF
-
+The PACF after difference tails off further suggesting a MA model.
 
 ### Final Verdict
-
+Either a ARMA(1, 0, 0) or ARMA(0, 1, 1)
 
 \newpage
 
@@ -240,7 +241,7 @@ The ACF suggests seasonality that tails off after lag 7 suggesting an seasonalit
 The PACF cuts off after 6 lags suggesting an AR(6) seasonality model.
 
 ### Final Verdict
-ARIMA(7, 0, 0) x $(6, 1, 0)_7$
+ARIMA(7, 0, 0) x $(1, 1, 0)_7$
 
 \newpage
 
@@ -268,7 +269,9 @@ fit_plot <- function(model) {
     upper_band <- pred$pred + 1.96 * pred$se
     lower_band <- pred$pred - 1.96 * pred$se
 
-    plot(c(model$x, pred$pred), type="l", xlim=c(500, length(oil) + 20), ylim=c(min(lower_band), max(upper_band)))
+    plot(c(model$x, pred$pred), type="l",
+         xlim=c(500, length(oil) + 20),
+         ylim=c(min(lower_band), max(upper_band)))
     lines(length(oil) + 1:20, upper_band, lty=2, col="red")
     lines(length(oil) + 1:20, lower_band, lty=2, col="red")
 }
@@ -284,47 +287,41 @@ dloil <- diff(loil)
 ddloil <- diff(loil, 2)
 ```
 
-\newpage
-
-```{r, echo=FALSE, fig.height=10}
+```{r, echo=FALSE, fig.height=10, eval=FALSE}
 plot_helper(oil, "Oil")
 ```
 
-```{r, echo=FALSE, fig.height=10}
+```{r, echo=FALSE, fig.height=10, eval=FALSE}
 plot_helper(doil, "1 Difference Oil")
 ```
 
-```{r, echo=FALSE, fig.height=10}
+```{r, echo=FALSE, fig.height=10, eval=FALSE}
 plot_helper(ddoil, "2 Difference Oil")
 ```
 
-```{r, echo=FALSE, fig.height=10}
+```{r, echo=FALSE, fig.height=10, eval=FALSE}
 plot_helper(dloil, "1 Difference log Oil")
 ```
 
-```{r, echo=FALSE, fig.height=10}
+```{r, echo=FALSE, fig.height=10, eval=FALSE}
 plot_helper(ddloil, "2 Difference log Oil")
 ```
 
-\newpage
-
-```{r}
+```{r, eval=FALSE}
 test_helper(doil)
 test_helper(ddoil)
 test_helper(dloil)
 test_helper(ddloil)
 ```
 
-\newpage
-
-```{r}
+```{r, eval=FALSE}
 fit1 <- Arima(loil, order=c(0, 2, 1))
 fit1
 
 fit_plot(fit1)
 ```
 
-```{r}
+```{r, eval=FALSE}
 fit2 <- Arima(loil, order=c(0, 1, 3))
 fit2
 
