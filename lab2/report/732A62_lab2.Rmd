@@ -32,8 +32,10 @@ AR.lm <- resid(lm(xt ~ x1 + x2, data = AR3.data))
 AR.lm.lag3 <- resid(lm(x3 ~ x1 + x2 , data = AR3.data))
 
 AR3.pacf[3]
-cor(AR.lm, AR.lm.lag3)
+
+cat(paste("The theoretical value:",round(cor(AR.lm, AR.lm.lag3), digits = 3)))
 ```
+As seen above the theoretical and the output from the pacf-function are very similar. 
 
 # b)
 
@@ -46,12 +48,20 @@ ar2.yw <- ar(AR2, order.max = 2, method = "yw", aic = FALSE)
 ar2.ols <- ar(AR2, order.max = 2, method = "ols", aic = FALSE)
 ar2.mle <- arima(AR2, order = c(2,0,0), method = "ML")
 
-ar2.yw
-ar2.ols
-ar2.mle
+ar2.yw$ar
+ar2.ols$ar
+ar2.mle$coef
+
 ```
 
-Yes, the theoretical value for $$\phi_2$$ is inside the confidence-intervall for the ML estimate.
+The Yule Walker estimate seems to have the parameters closes to the true parameters given in the assignment.
+
+```{r}
+ar2.mle 
+```
+
+
+Yes, the theoretical value for $$\phi_2$$ is inside the confidence-intervall for the ML estimate which can seen from the s.e times 1.96 which obviously will cover the true coefficients.
 
 # c)
 
@@ -73,6 +83,13 @@ empirical.acf <- acf(ts4)
 empirical.pacf <- pacf(ts4)
 ```
 
+The patterns seem to be somewhat similar. In the theoretical ACF we can see a large spike at lag 14 which also can be seen in the sample ACF. The difference between the two beeing that the sample ACF has some correlation along the lags although under the confidence interval. 
+
+For the PACF we can do the same observation as for the relationship between the theoretical and the sample.
+
+
+
+
 # d)
 
 ```{r}
@@ -89,11 +106,15 @@ lines(200 + 1:length(ts5.pred$pred), ts5.pred$pred - 1.96 * ts5.pred$se, lty=2, 
 
 gausspr.data <- data.frame(y=ts5, x=1:200)
 gausspr.fit <- gausspr(y ~ x, gausspr.data)
-gausspr.pred <- predict(gfit, data.frame(x=201:230))
+gausspr.pred <- predict(gausspr.fit, data.frame(x=201:230))
 
 plot(ts5, xlim=c(0, 230))
 lines(c(fitted(gausspr.fit), gausspr.pred), , col="red")
 ```
+
+In the first plot we can see the MA models predicions seem resonable but after a while the predictions just tails of in to a mean function at y = 0. 
+
+For the gaussian process there is an initial jump in the predictions and afterwards continues with a smoothed pattern similar to the fitted line in the observed data.
 
 # e)
 
@@ -117,6 +138,8 @@ points(40 + 1:length(test), ts6.pred$pred, col="blue")
 lines(40 + 1:length(test), ts6.pred$pred + 1.96 * ts6.pred$se, lty=2, col="red")
 lines(40 + 1:length(test), ts6.pred$pred - 1.96 * ts6.pred$se, lty=2, col="red")
 ```
+
+The first of the 10 observations withheld from the fitted model is the only observation that is not in the prediction interval. Since it is a 95 % prediction interval we say that we expect that 5 of 100 observations will be outside the interval it is not unresonable that 1 of 10 is outside the interval.
 
 \newpage
 
