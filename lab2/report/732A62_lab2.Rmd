@@ -35,7 +35,7 @@ AR3.pacf[3]
 
 cat(paste("The theoretical value:",round(cor(AR.lm, AR.lm.lag3), digits = 3)))
 ```
-As seen above the theoretical and the output from the pacf-function are very similar. 
+As seen above the theoretical and the output from the pacf-function are very similar.
 
 # b)
 
@@ -57,9 +57,8 @@ ar2.mle$coef
 The Yule Walker estimate seems to have the parameters closes to the true parameters given in the assignment.
 
 ```{r}
-ar2.mle 
+ar2.mle
 ```
-
 
 Yes, the theoretical value for $$\phi_2$$ is inside the confidence-intervall for the ML estimate which can seen from the s.e times 1.96 which obviously will cover the true coefficients.
 
@@ -83,12 +82,9 @@ empirical.acf <- acf(ts4)
 empirical.pacf <- pacf(ts4)
 ```
 
-The patterns seem to be somewhat similar. In the theoretical ACF we can see a large spike at lag 14 which also can be seen in the sample ACF. The difference between the two beeing that the sample ACF has some correlation along the lags although under the confidence interval. 
+The patterns seem to be somewhat similar. In the theoretical ACF we can see a large spike at lag 14 which also can be seen in the sample ACF. The difference between the two beeing that the sample ACF has some correlation along the lags although under the confidence interval.
 
 For the PACF we can do the same observation as for the relationship between the theoretical and the sample.
-
-
-
 
 # d)
 
@@ -112,7 +108,7 @@ plot(ts5, xlim=c(0, 230))
 lines(c(fitted(gausspr.fit), gausspr.pred), , col="red")
 ```
 
-In the first plot we can see the MA models predicions seem resonable but after a while the predictions just tails of in to a mean function at y = 0. 
+In the first plot we can see the MA models predicions seem resonable but after a while the predictions just tails of in to a mean function at y = 0.
 
 For the gaussian process there is an initial jump in the predictions and afterwards continues with a smoothed pattern similar to the fitted line in the observed data.
 
