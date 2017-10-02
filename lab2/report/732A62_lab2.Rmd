@@ -80,18 +80,12 @@ set.seed(12345)
 ma.coef <- c(0.3, rep(0, 10), 0.6)
 ts5 <- arima.sim(n=200, model=list(order=c(0, 0, 12), ma = ma.coef))
 
-
 ts5.fit <- arima(ts5, order=c(0, 0, 1), seasonal=list(order=c(0, 0, 1), period=12))
 ts5.pred <- predict(ts5.fit, n.ahead=30, se.fit=TRUE)
 
 plot(ts(c(ts5, ts5.pred$pred)), ylim=c(-4, 4))
 lines(200 + 1:length(ts5.pred$pred), ts5.pred$pred + 1.96 * ts5.pred$se, lty=2, col="red")
 lines(200 + 1:length(ts5.pred$pred), ts5.pred$pred - 1.96 * ts5.pred$se, lty=2, col="red")
-
-## gausspr.data <- ts.intersect(x=ts5, x1=lag(ts5, 1), x12=lag(ts5, 12), x13=lag(ts5, 13))
-## gausspr.fit <- gausspr(x ~ ., gausspr.data)
-## plot(ts5)
-## lines(fitted(gausspr.fit), col="red", lwd=2)
 
 gausspr.data <- data.frame(y=ts5, x=1:200)
 gausspr.fit <- gausspr(y ~ x, gausspr.data)
@@ -318,3 +312,57 @@ fit_plot(fit3)
 \newpage
 
 ## b)
+
+```{r}
+lunemp <- log(unemp)
+dunemp <- diff(unemp)
+ddunemp <- diff(dunemp, 2)
+dlunemp <- diff(lunemp)
+ddlunemp <- diff(lunemp, 2)
+```
+
+```{r, fig.height=10, echo=FALSE}
+old <- par(mfrow=c(4, 1))
+plot(unemp, main="Unemp")
+plot(dunemp, main="Difference 1 Unemp")
+plot(dlunemp, main="Difference 1 Log Unemp")
+plot(ddlunemp, main="Difference 2 Log Unemp")
+par(old)
+```
+
+Clearly difference log is the data we should work with. bla, bla, ...
+
+
+```{r, fig.height=10, echo=FALSE}
+old <- par(mfrow=c(4, 1))
+acf(dlunemp, lag.max=40, main="Difference 1 Log Unemp ACF")
+pacf(dlunemp, lag.max=40, main="Difference 1 Log Unemp PACF")
+acf(ddlunemp, lag.max=40, main="Difference 2 Log Unemp ACF")
+pacf(ddlunemp, lag.max=40, main="Difference 2 Log Unemp PACF")
+par(old)
+```
+
+```{r}
+eacf(dlunemp)
+eacf(ddlunemp)
+```
+
+```{r, fig.height=10, echo=FALSE}
+old <- par(mfrow=c(2, 1))
+qqnorm(dlunemp, main="Difference 1 Log Unemp", las=1)
+qqline(dlunemp, main="")
+qqnorm(ddlunemp, main="Difference 2 Log Unemp", las=1)
+qqline(ddlunemp, main="")
+par(old)
+```
+
+\newpage
+
+```{r}
+fit1 <- Arima(lunemp, order=c(1, 1, 1))
+fit1
+fit2 <- Arima(lunemp, order=c(0, 1, 3))
+fit2
+fit3 <- Arima(lunemp, order=c(0, 2, 1))
+fit3
+```
