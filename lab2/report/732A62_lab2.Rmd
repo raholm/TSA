@@ -135,25 +135,25 @@ assignment2 <- function(data){
 
 ## Chicken
 
-```{r}
+```{r, echo=FALSE, fig.height=10}
 assignment2(chicken)
 ```
 
 ## so2
 
-```{r}
+```{r, echo=FALSE, fig.height=10}
 assignment2(so2)
 ```
 
 ## EQcount
 
-```{r}
+```{r, echo=FALSE, fig.height=10}
 assignment2(EQcount)
 ```
 
 ## HCT
 
-```{r}
+```{r, echo=FALSE, fig.height=10}
 assignment2(HCT)
 ```
 
