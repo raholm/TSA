@@ -291,9 +291,11 @@ ddloil <- diff(loil, 2)
 plot_helper(oil, "Oil")
 ```
 
+
 ```{r, echo=FALSE, fig.height=10, eval=FALSE}
 plot_helper(doil, "1 Difference Oil")
 ```
+
 
 ```{r, echo=FALSE, fig.height=10, eval=FALSE}
 plot_helper(ddoil, "2 Difference Oil")
@@ -339,7 +341,7 @@ plot(ddloil, main="Difference 2 Log Oil")
 par(old)
 ```
 
-Clearly difference log is the data we should work with. bla, bla, ...
+Clearly difference log is the data we should work with, a second difference does not do any visual change to the data that can already be considerd stationary at diff 1 with a log transformation but we keep both and keep both as tenative models.
 
 
 ```{r, fig.height=10, echo=FALSE}
@@ -351,45 +353,50 @@ pacf(ddloil, lag.max=40, main="Difference 2 Log Oil PACF")
 par(old)
 ```
 
+Here the ACF and PACF for the first order differencing dosn't seem to have any clear defined patterns compared to the second orderd differencing where we can se that the ACF cuts of at lag 1 and trails off in the PACF suggesting a ARIMA(0,2,1).
+
+
 ```{r}
 eacf(dloil)
 eacf(ddloil)
 ```
 
-```{r, fig.height=10, echo=FALSE}
-old <- par(mfrow=c(2, 1))
-qqnorm(dloil, main="Difference 1 Log Oil", las=1)
-qqline(dloil, main="")
-qqnorm(ddloil, main="Difference 2 Log Oil", las=1)
-qqline(ddloil, main="")
-par(old)
-```
+The EACF dosn't seem to help aliviate the ambigous ACF/PACF for the first order diff series and suggest a wide range of models making the general pattern more like a box than a triangular shape. 
+
+For the second order diff we can see the triangular shape with a point at a AR(1) which would confirm previous statements in the ACF.
+
 
 \newpage
 
 ```{r}
 fit1 <- Arima(loil, order=c(1, 1, 1))
 fit1
-fit2 <- Arima(loil, order=c(0, 1, 3))
+fit2 <- Arima(loil, order=c(1, 2, 2))
 fit2
 fit3 <- Arima(loil, order=c(0, 2, 1))
 fit3
+
 ```
+
+The best model if we evaluate the BIC criterion we choose the ARIMA(0,2,1) which looks like following $$\bigtriangledown^2x_t = (1+\theta B)w_t $$
 
 \newpage
 
-```{r}
+```{r, echo = FALSE, eval = FALSE}
 complex_dist <- function(x) {
     sqrt(Re(x)^2 + Im(x)^2)
 }
 
 sapply(polyroot(c(1, -2, 1)), complex_dist)
-sapply(polyroot(c(1, -1)), complex_dist)
+sapply(polyroot(c(1)), complex_dist)
+
 ```
 
 ```{r}
 fit_plot(fit3)
 ```
+
+The figure above displays 20 steps ahead prediction. The intervals looks resonable and the prediction aswell.
 
 \newpage
 
