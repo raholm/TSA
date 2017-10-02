@@ -125,10 +125,10 @@ lines(40 + 1:length(test), ts6.pred$pred - 1.96 * ts6.pred$se, lty=2, col="red")
 ```{r}
 assignment2 <- function(data){
     old <- par(mfrow = c(2, 2))
-    acf(data, lag.max = 40)
-    pacf(data, lag.max = 40)
-    acf(diff(data, lag = 1), lag.max = 40)
-    pacf(diff(data, lag = 1), lag.max = 40)
+    acf(data, lag.max = 40, main="Data ACF")
+    pacf(data, lag.max = 40, main="Data PACF")
+    acf(diff(data, lag = 1), lag.max = 40, main="Difference 1 Data ACF")
+    pacf(diff(data, lag = 1), lag.max = 40, main="Difference 1 Data PACF")
     par(old)
 }
 ```
@@ -139,11 +139,45 @@ assignment2 <- function(data){
 assignment2(chicken)
 ```
 
+### Data ACF
+The ACF on the original data suggests an AR or ARMA model since the ACF tails off.
+
+### Data PACF
+The PACF on the original data cuts off after lag 1 suggesting an AR(1) model.
+
+### Difference 1 Data ACF
+After having performed difference of order 1 we can clearly see that there is a seasonal trend in the data. The ACF suggests a seasonality of 10 but it does not seem to tail off.
+
+### Difference 1 Data PACF
+The PACF indicates that ...
+
+### Final Verdict
+ARIMA(1, 0, 0) x $(\_, 1, \_)_10$
+
+\newpage
+
 ## so2
 
 ```{r, echo=FALSE, fig.height=10}
 assignment2(so2)
 ```
+
+### Data ACF
+The ACF tails off suggesting either an AR or ARMA model.
+
+### Data PACF
+The PACF tails off as well suggesting an ARMA model.
+
+### Difference 1 Data ACF
+The ACF after difference cuts off after lag 1 suggesting a MA(1) model.
+
+### Difference 1 Data PACF
+The PACF after difference tails off further suggesting a MA(1) model.
+
+### Final Verdict
+ARIMA(0, 1, 1)
+
+\newpage
 
 ## EQcount
 
@@ -151,11 +185,43 @@ assignment2(so2)
 assignment2(EQcount)
 ```
 
+### Data ACF
+The ACF tails off suggesting an AR or ARMA model.
+
+### Data PACF
+The PACF cuts off after lag 1 suggesting AR(1) model.
+
+### Difference 1 Data ACF
+The ACF after difference cuts off after lag 1 suggesting a MA(1) model.
+
+### Difference 1 Data PACF
+
+
+### Final Verdict
+
+
+\newpage
+
 ## HCT
 
 ```{r, echo=FALSE, fig.height=10}
 assignment2(HCT)
 ```
+
+### Data ACF
+The ACF tails off suggesting either an AR or ARMA model.
+
+### Data PACF
+The PACF cuts off after lag 7 suggesting an AR(7) model.
+
+### Difference 1 Data ACF
+The ACF suggests seasonality that tails off after lag 7 suggesting an seasonality of 7.
+
+### Difference 1 Data PACF
+The PACF cuts off after 6 lags suggesting an AR(6) seasonality model.
+
+### Final Verdict
+ARIMA(7, 0, 0) x $(6, 1, 0)_7$
 
 \newpage
 
