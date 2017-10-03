@@ -8,6 +8,10 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(astsa)
+library(kernlab)
+library(TSA)
+library(forecast)
 ```
 
 # Assignment 1
@@ -15,11 +19,6 @@ knitr::opts_chunk$set(echo = TRUE)
 # a)
 
 ```{r}
-library(astsa)
-library(kernlab)
-library(TSA)
-library(forecast)
-
 set.seed(12345)
 AR3 <- arima.sim(1000, model = list(order = c(3,0,0),
                                     ar = c(0.8, -0.2, 0.1)))
@@ -173,13 +172,14 @@ The ACF on the original data suggests an AR or ARMA model since the ACF tails of
 The PACF on the original data cuts off after lag 1 suggesting an AR(1) model.
 
 ### Difference 1 Data ACF
-After having performed difference of order 1 we can clearly see that there is a seasonal trend in the data. The ACF suggests a seasonality of 10 that tails off for a while then goes up again. This may indicate an AR model.
+After having performed difference of order 1 we can clearly see that there is a seasonal trend in the data. The ACF suggests a seasonality of 12 that tails off for a while then goes up again. This may indicate an AR model.
 
 ### Difference 1 Data PACF
-The PACF shows that the seasonality cuts off after lag 10 which is 1 * 10 indicating an AR(1) model.
+The PACF shows that the seasonality cuts off after lag 12 which is 1 * 12 indicating an AR(1) model.
 
 ### Final Verdict
-ARIMA(1, 0, 0)$\times (1, 1, 0)_{10}$
+ARIMA(1, 0, 0) x $(1, 1, 0)_{12}$
+
 
 \newpage
 
