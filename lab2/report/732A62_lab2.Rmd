@@ -173,14 +173,14 @@ The ACF on the original data suggests an AR or ARMA model since the ACF tails of
 The PACF on the original data cuts off after lag 1 suggesting an AR(1) model.
 
 ### Difference 1 Data ACF
-After having performed difference of order 1 we can clearly see that there is a seasonal trend in the data. The ACF suggests a seasonality of 10 but it does not seem to tail off.
+After having performed difference of order 1 we can clearly see that there is a seasonal trend in the data. The ACF suggests a seasonality of 10 that tails off for a while then goes up again. This may indicate an AR model.
 
 ### Difference 1 Data PACF
-The PACF indicates that ...
+The PACF shows that the seasonality cuts off after lag 10 which is 1 * 10 indicating an AR(1) model.
 
 ### Final Verdict
 Needs further investigation
-ARIMA(1, 0, 0) x $(\_, 1, \_)_10$
+ARIMA(1, 0, 0) x $(1, 1, 0)_10$
 
 \newpage
 
@@ -454,8 +454,6 @@ eacf(dlunemp)
 ```
 
 The EACF further suggest that there is no normal ARMA model that is well suited for the data.
-
-
 
 ```{r, fig.height=10, echo=FALSE}
 old <- par(mfrow=c(1, 1))
