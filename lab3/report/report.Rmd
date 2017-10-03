@@ -16,6 +16,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(astsa)
+library(TSA)
+library(forecast)
 
 plot(chicken)
 ```
@@ -36,7 +38,7 @@ The residuals do not look stationary.
 ## 3)
 
 ```{r}
-spec.pgram(fft(z))
+periodogram(fft(z))
 ```
 
 ## 4)
@@ -55,12 +57,32 @@ spec.pgram(fft(z))
 
 ```{r}
 
+fit_plot <- function(model, data) {
+    nahead <- 36
+    pred <- predict(model, n.ahead=nahead, se.fit=TRUE)
+    upper_band <- pred$pred + 1.96 * pred$se
+    lower_band <- pred$pred - 1.96 * pred$se
+
+    n <- length(data)
+
+    plot(c(data, pred$pred), type="l",
+         xlim=c(n - nahead, n + nahead),
+         ylim=c(min(lower_band), max(upper_band)), ylab="Value", xlab="Time")
+    lines(n + 1:nahead, upper_band, lty=2, col="red")
+    lines(n + 1:nahead, lower_band, lty=2, col="red")
+}
+```
+
+```{r}
+fit <- arima(chicken, order=c(2, 1, 0), seasonal=list(order=c(0, 0, 1), period=12))
+fit_plot(fit, chicken)
 ```
 
 ## 7)
 
 ```{r}
-
+fit <- arima(chicken, order=c(3, 0, 0), seasonal=list(order=c(0, 0, 1), period=12))
+fit_plot(fit, chicken)
 ```
 
 \newpage
