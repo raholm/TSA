@@ -26,15 +26,15 @@ AR3 <- arima.sim(1000, model = list(order = c(3,0,0),
 
 ## The theoretical
 AR3.pacf <- pacf(AR3, plot=F)
-AR3.data <- ts.intersect(xt = AR3, x1 = lag(AR3, 1), x2 =lag(AR3, 2), x3= lag(AR3, 3))
+AR3.data <- ts.intersect(xt = AR3, x1 = lag(AR3, 1), x2 = lag(AR3, 2), x3 = lag(AR3, 3))
 
 AR.lm <- resid(lm(xt ~ x1 + x2, data = AR3.data))
 AR.lm.lag3 <- resid(lm(x3 ~ x1 + x2 , data = AR3.data))
 
 AR3.pacf[3]
-
 cat(paste("The theoretical value:",round(cor(AR.lm, AR.lm.lag3), digits = 3)))
 ```
+
 As seen above the theoretical and the output from the pacf-function are very similar.
 
 # b)
@@ -51,7 +51,6 @@ ar2.mle <- arima(AR2, order = c(2,0,0), method = "ML")
 ar2.yw$ar
 ar2.ols$ar
 ar2.mle$coef
-
 ```
 
 The Yule Walker estimate seems to have the parameters closes to the true parameters given in the assignment.
@@ -71,24 +70,26 @@ ts4 <- arima.sim(n=200, model=list(order=c(0, 0, 12), ma = ma.coef))
 
 theoretical.acf <- ARMAacf(ma=c(ma.coef, 0.3 * 0.6))
 theoretical.pacf <- ARMAacf(ma=c(ma.coef, 0.3 * 0.6), pacf=TRUE)
-
-plot(theoretical.acf, type="h", main="Theoretical ACF")
-abline(h=0)
-
-plot(theoretical.pacf, type="h", main="Theoretical PACF")
-abline(h=0)
-
-empirical.acf <- acf(ts4)
-empirical.pacf <- pacf(ts4)
 ```
 
-The patterns seem to be somewhat similar. In the theoretical ACF we can see a large spike at lag 14 which also can be seen in the sample ACF. The difference between the two beeing that the sample ACF has some correlation along the lags although under the confidence interval.
+```{r, fig.height=10, echo=FALSE}
+old <- par(mfrow=c(4, 1))
+plot(theoretical.acf, type="h", main="Theoretical ACF")
+abline(h=0)
+empirical.acf <- acf(ts4, main="Empirical ACF")
+plot(theoretical.pacf, type="h", main="Theoretical PACF")
+abline(h=0)
+empirical.pacf <- pacf(ts4, main="Empirical PACF")
+par(old)
+```
 
-For the PACF we can do the same observation as for the relationship between the theoretical and the sample.
+The patterns seem to be somewhat similar. In the theoretical ACF we can see a large spike at lags  1 and 13 and in the sample ACF we have large spikes at lags 1 and 12 instead. The difference between the two being that the sample ACF has some correlation along the lags although under the confidence interval.
+
+For the PACF we can see a similar observation that there are spikes at lags 1 and 12 for both the theoretical and sample PACF.
 
 # d)
 
-```{r}
+```{r, results="hide"}
 set.seed(12345)
 ma.coef <- c(0.3, rep(0, 10), 0.6)
 ts5 <- arima.sim(n=200, model=list(order=c(0, 0, 12), ma = ma.coef))
@@ -96,19 +97,22 @@ ts5 <- arima.sim(n=200, model=list(order=c(0, 0, 12), ma = ma.coef))
 ts5.fit <- arima(ts5, order=c(0, 0, 1), seasonal=list(order=c(0, 0, 1), period=12))
 ts5.pred <- predict(ts5.fit, n.ahead=30, se.fit=TRUE)
 
-plot(ts(c(ts5, ts5.pred$pred)), ylim=c(-4, 4))
-lines(200 + 1:length(ts5.pred$pred), ts5.pred$pred + 1.96 * ts5.pred$se, lty=2, col="red")
-lines(200 + 1:length(ts5.pred$pred), ts5.pred$pred - 1.96 * ts5.pred$se, lty=2, col="red")
-
 gausspr.data <- data.frame(y=ts5, x=1:200)
 gausspr.fit <- gausspr(y ~ x, gausspr.data)
 gausspr.pred <- predict(gausspr.fit, data.frame(x=201:230))
-
-plot(ts5, xlim=c(0, 230))
-lines(c(fitted(gausspr.fit), gausspr.pred), , col="red")
 ```
 
-In the first plot we can see the MA models predicions seem resonable but after a while the predictions just tails of in to a mean function at y = 0.
+```{r, echo=FALSE, fig.height=8}
+old <- par(mfrow=c(2, 1))
+plot(ts(c(ts5, ts5.pred$pred)), ylim=c(-4, 4), ylab="value")
+lines(200 + 1:length(ts5.pred$pred), ts5.pred$pred + 1.96 * ts5.pred$se, lty=2, col="red")
+lines(200 + 1:length(ts5.pred$pred), ts5.pred$pred - 1.96 * ts5.pred$se, lty=2, col="red")
+plot(ts5, xlim=c(0, 230), ylab="value")
+lines(c(fitted(gausspr.fit), gausspr.pred), , col="red")
+par(old)
+```
+
+In the first plot we can see the MA models predictions seem reasonable but after a while the predictions just tails of in to a mean function at y = 0.
 
 For the gaussian process there is an initial jump in the predictions and afterwards continues with a smoothed pattern similar to the fitted line in the observed data.
 
@@ -123,19 +127,23 @@ test <- ts(ts6[41:50])
 
 ts6.fit <- arima(train, order=c(1, 0, 1), include.mean = F)
 ts6.pred <- predict(ts6.fit, n.ahead=10)
+```
 
-plot(ts(c(train, test)), ylim=c(-4, 7), type="l")
+```{r, echo=FALSE, fig.height=8}
+old <- par(mfrow=c(2, 1))
+plot(ts(c(train, test)), ylim=c(-4, 7), type="l", ylab="value")
 lines(40 + 1:length(test), ts6.pred$pred, col="blue")
 lines(40 + 1:length(test), ts6.pred$pred + 1.96 * ts6.pred$se, lty=2, col="red")
 lines(40 + 1:length(test), ts6.pred$pred - 1.96 * ts6.pred$se, lty=2, col="red")
 
-plot(40 + 1:length(test), test, ylim=c(-4, 7), xlim=c(40, 50), type="p")
+plot(40 + 1:length(test), test, ylim=c(-4, 7), xlim=c(40, 50), type="p", ylab="value", xlab="Time")
 points(40 + 1:length(test), ts6.pred$pred, col="blue")
 lines(40 + 1:length(test), ts6.pred$pred + 1.96 * ts6.pred$se, lty=2, col="red")
 lines(40 + 1:length(test), ts6.pred$pred - 1.96 * ts6.pred$se, lty=2, col="red")
+par(old)
 ```
 
-The first of the 10 observations withheld from the fitted model is the only observation that is not in the prediction interval. Since it is a 95 % prediction interval we say that we expect that 5 of 100 observations will be outside the interval it is not unresonable that 1 of 10 is outside the interval.
+The first of the 10 observations withheld from the fitted model is the only observation that is not in the prediction interval. Since it is a 95 % prediction interval we say that we expect that 5 of 100 observations will be outside the interval so it is not unreasonable that 1 of 10 is outside the interval.
 
 \newpage
 
@@ -361,7 +369,7 @@ eacf(dloil)
 eacf(ddloil)
 ```
 
-The EACF dosn't seem to help aliviate the ambigous ACF/PACF for the first order diff series and suggest a wide range of models making the general pattern more like a box than a triangular shape. 
+The EACF dosn't seem to help aliviate the ambigous ACF/PACF for the first order diff series and suggest a wide range of models making the general pattern more like a box than a triangular shape.
 
 For the second order diff we can see the triangular shape with a point at a AR(1) which would confirm previous statements in the ACF.
 
