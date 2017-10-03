@@ -1,0 +1,104 @@
+---
+title: "732A62 Lab 3"
+author: "Emil K Svensson & Rasmus Holm"
+date: "`r Sys.Date()`"
+output:
+    pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Assignment 1
+
+## 1)
+
+```{r}
+library(astsa)
+
+plot(chicken)
+```
+
+It looks like a linear, potentially quadratic, trend.
+
+## 2)
+
+```{r}
+lm_data <- data.frame(chicken=chicken, time=1:length(chicken))
+lm_fit <- lm(chicken ~ time, lm_data)
+z <- resid(lm_fit)
+plot(z, type="l", ylab="resid", xlab="Time")
+```
+
+The residuals do not look stationary.
+
+## 3)
+
+```{r}
+spec.pgram(fft(z))
+```
+
+## 4)
+
+```{r}
+
+```
+
+## 5)
+
+```{r}
+
+```
+
+## 6)
+
+```{r}
+
+```
+
+## 7)
+
+```{r}
+
+```
+
+\newpage
+
+# Assignment 2
+
+## 1)
+
+```{r}
+
+```
+
+## 2)
+
+```{r}
+
+```
+
+## 3)
+
+```{r}
+
+```
+
+## 4)
+
+```{r}
+
+```
+
+## 5)
+
+```{r}
+
+```
+
+## 6)
+
+```{r}
+
+```

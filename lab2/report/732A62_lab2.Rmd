@@ -183,6 +183,7 @@ The PACF shows that the seasonality cuts off after lag 12 which is 1 * 12 indica
 Needs further investigation
 ARIMA(1, 0, 0) x $(1, 1, 0)_{12}$
 
+
 \newpage
 
 ## so2
@@ -250,7 +251,7 @@ The ACF suggests seasonality that tails off after lag 7 suggesting an seasonalit
 The PACF cuts off after 6 lags suggesting an AR(6) seasonality model.
 
 ### Final Verdict
-ARIMA(7, 0, 0) x $(1, 1, 0)_7$
+ARIMA(7, 0, 0)$\times(1, 1, 0)_7$
 
 \newpage
 
@@ -278,11 +279,13 @@ fit_plot <- function(model) {
     upper_band <- pred$pred + 1.96 * pred$se
     lower_band <- pred$pred - 1.96 * pred$se
 
+    n <- length(model$x)
+
     plot(c(model$x, pred$pred), type="l",
-         xlim=c(500, length(oil) + 20),
-         ylim=c(min(lower_band), max(upper_band)))
-    lines(length(oil) + 1:20, upper_band, lty=2, col="red")
-    lines(length(oil) + 1:20, lower_band, lty=2, col="red")
+         xlim=c(n - 20, n + 20),
+         ylim=c(min(lower_band), max(upper_band)), ylab="Value", xlab="Time")
+    lines(n + 1:20, upper_band, lty=2, col="red")
+    lines(n + 1:20, lower_band, lty=2, col="red")
 }
 ```
 
@@ -296,61 +299,32 @@ dloil <- diff(loil)
 ddloil <- diff(loil, 2)
 ```
 
-```{r, echo=FALSE, fig.height=10, eval=FALSE}
-plot_helper(oil, "Oil")
-```
-
-
-```{r, echo=FALSE, fig.height=10, eval=FALSE}
-plot_helper(doil, "1 Difference Oil")
-```
-
-
-```{r, echo=FALSE, fig.height=10, eval=FALSE}
-plot_helper(ddoil, "2 Difference Oil")
-```
-
-```{r, echo=FALSE, fig.height=10, eval=FALSE}
-plot_helper(dloil, "1 Difference log Oil")
-```
-
-```{r, echo=FALSE, fig.height=10, eval=FALSE}
-plot_helper(ddloil, "2 Difference log Oil")
-```
-
-```{r, eval=FALSE}
-test_helper(doil)
-test_helper(ddoil)
-test_helper(dloil)
-test_helper(ddloil)
-```
-
-```{r, eval=FALSE}
-fit1 <- Arima(loil, order=c(0, 2, 1))
-fit1
-
-fit_plot(fit1)
-```
-
-```{r, eval=FALSE}
-fit2 <- Arima(loil, order=c(0, 1, 3))
-fit2
-
-fit_plot(fit2)
-```
-
 \newpage
 
-```{r, fig.height=10, echo=FALSE}
-old <- par(mfrow=c(4, 1))
+```{r, fig.height=8, echo=FALSE}
+old <- par(mfrow=c(2, 1))
 plot(oil, main="Oil")
 plot(diff(oil), main="Difference 1 Oil")
+par(old)
+```
+
+```{r, fig.height=8, echo=FALSE}
+old <- par(mfrow=c(2, 1))
 plot(dloil, main="Difference 1 Log Oil")
 plot(ddloil, main="Difference 2 Log Oil")
 par(old)
 ```
 
 Clearly difference log is the data we should work with, a second difference does not do any visual change to the data that can already be considerd stationary at diff 1 with a log transformation but we keep both and keep both as tenative models.
+
+```{r}
+adf.test(oil)
+adf.test(loil)
+adf.test(dloil)
+adf.test(ddloil)
+```
+
+The Augmented Dickey-Fuller test also indicates that we should use differencing to make the data stationary.
 
 
 ```{r, fig.height=10, echo=FALSE}
@@ -363,7 +337,6 @@ par(old)
 ```
 
 Here the ACF and PACF for the first order differencing dosn't seem to have any clear defined patterns compared to the second orderd differencing where we can se that the ACF cuts of at lag 1 and trails off in the PACF suggesting a ARIMA(0,2,1).
-
 
 ```{r}
 eacf(dloil)
@@ -384,28 +357,17 @@ fit2 <- Arima(loil, order=c(1, 2, 2))
 fit2
 fit3 <- Arima(loil, order=c(0, 2, 1))
 fit3
-
 ```
 
 The best model if we evaluate the BIC criterion we choose the ARIMA(0,2,1) which looks like following $$\bigtriangledown^2x_t = (1+\theta B)w_t $$
 
 \newpage
 
-```{r, echo = FALSE, eval = FALSE}
-complex_dist <- function(x) {
-    sqrt(Re(x)^2 + Im(x)^2)
-}
-
-sapply(polyroot(c(1, -2, 1)), complex_dist)
-sapply(polyroot(c(1)), complex_dist)
-
-```
-
 ```{r}
 fit_plot(fit3)
 ```
 
-The figure above displays 20 steps ahead prediction. The intervals looks resonable and the prediction aswell.
+The figure above displays 20 steps ahead prediction. The intervals looks resonable and the prediction as well.
 
 \newpage
 
@@ -418,10 +380,15 @@ dlunemp <- diff(lunemp, 1)
 ddlunemp <- diff(lunemp, 2)
 ```
 
-```{r, fig.height=10, echo=FALSE}
-old <- par(mfrow=c(4, 1))
+```{r, fig.height=8, echo=FALSE}
+old <- par(mfrow=c(2, 1))
 plot(unemp, main="Unemp")
 plot(dunemp, main="Difference 1 Unemp")
+par(old)
+```
+
+```{r, fig.height=8, echo=FALSE}
+old <- par(mfrow=c(2, 1))
 plot(dlunemp, main="Difference 1 Log Unemp")
 plot(ddlunemp, main="Difference 1 Log Unemp")
 par(old)
@@ -441,35 +408,37 @@ par(old)
 ### Difference 1
 \textbf{Seasonality behavior:} The ACF plot suggests a seasonality trend of 12 lags that tails off both in the ACF and the PACF. This suggests an $ARMA_12$ seasonality component. The PACF spikes at 3 multiples which is indicative of AR(3).
 
-There is a seasonality trend that occurs at lags 3, 5, 7, 9, 12, 15, 17, 19, 21, 24.
+\textbf{Non-seasonality behavior:} There is no distinct non-seasonal pattern to be seen.
 
-\textbf{Non-seasonality behavor:}
+Our model for this data is SARMA$(3, 1, 0)_{12}$.
 
 ### Difference 2
-\textbf{Seasonality behavior:}
+\textbf{Seasonality behavior:} We can see that there are large spikes at lags 9, 12, 15 and then it gets insignificant until the pattern repeats at lags 21, 24, 27. So there is definitely a seasonality pattern in the data. The PACF shows that the pattern tails off over time with spikes at two 2 multiples which indicates AR(2).
 
 \textbf{Non-seasonality behavor:} Apart from the seasonal behavior the ACF tails off and the PACF cuts off after lag 2 indicating an AR(2) model.
 
 ```{r}
 eacf(dlunemp)
+eacf(ddlunemp)
 ```
 
 The EACF further suggest that there is no normal ARMA model that is well suited for the data.
 
-```{r, fig.height=10, echo=FALSE}
-old <- par(mfrow=c(1, 1))
-qqnorm(dlunemp, main="Difference 1 Log Unemp", las=1)
-qqline(dlunemp, main="")
-par(old)
+```{r}
+fit1 <- Arima(lunemp, order=c(0, 0, 0), seasonal=c(3, 1, 0))
+fit1
+fit2 <- Arima(lunemp, order=c(0, 0, 0), seasonal=c(2, 2, 0))
+fit2
 ```
 
-\newpage
+The second fit has better BIC/AIC which is then our final model. It can be written formally as
+
+\begin{equation*}
+(1 + 0.6655 B + 0.337 B^2) \bigtriangledown^2 x_t = w_t.
+\end{equation*}
 
 ```{r}
-fit1 <- Arima(lunemp, order=c(1, 1, 1))
-fit1
-fit2 <- Arima(lunemp, order=c(0, 1, 3))
-fit2
-fit3 <- Arima(lunemp, order=c(0, 2, 1))
-fit3
+fit_plot(fit2)
 ```
+
+The predictions look reasonable good.
