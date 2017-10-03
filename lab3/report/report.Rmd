@@ -93,17 +93,50 @@ fit_plot(fit, chicken)
 
 ```{r}
 
+ld_oil <-diff(log(oil))
+
+z <-ld_oil[1:(52*9 + 33)]
+
+old <- par(mfrow = c(1,2))
+acf(z)
+pacf(z)
+par(old)
+
+suggested_model <- Arima(z, order = c(3,0,0))
+
+summary(suggested_model)
+
+r <- resid(suggested_model)
 ```
 
 ## 2)
 
 ```{r}
-
+plot(r)
+old <- par(mfrow = c(1,2))
+acf(r^2)
+pacf(r^2)
+par(old)
 ```
+The time series of the residuals seem to have an increasing variance in the end of the residuals.
 
+The ACF of the squared residuals trails of and in the PACF they cuts of after 2 lags. Indicating a GARCH(p,q)
+ An p = 2, q = 0 maybe?
 ## 3)
 
 ```{r}
+
+
+helper <- function(data){
+old <- par(mfrow = c(3,1))
+acf(data)
+acf(data^2)
+qqnorm(data)  
+qqline(data)
+par(old)
+jarque.bera.test(data)
+Box.test(data, type = "Ljung-Box")
+}
 
 ```
 
