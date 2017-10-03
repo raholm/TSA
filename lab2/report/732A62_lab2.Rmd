@@ -319,7 +319,7 @@ adf.test(dloil)
 adf.test(ddloil)
 ```
 
-The Augmented Dicket-Fuller test also indicates that we should use differencing to make the data stationary.
+The Augmented Dickey-Fuller test also indicates that we should use differencing to make the data stationary.
 
 
 ```{r, fig.height=10, echo=FALSE}
