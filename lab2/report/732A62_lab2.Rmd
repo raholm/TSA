@@ -179,8 +179,7 @@ After having performed difference of order 1 we can clearly see that there is a 
 The PACF shows that the seasonality cuts off after lag 10 which is 1 * 10 indicating an AR(1) model.
 
 ### Final Verdict
-Needs further investigation
-ARIMA(1, 0, 0) x $(1, 1, 0)_10$
+ARIMA(1, 0, 0)$\times (1, 1, 0)_{10}$
 
 \newpage
 
@@ -249,7 +248,7 @@ The ACF suggests seasonality that tails off after lag 7 suggesting an seasonalit
 The PACF cuts off after 6 lags suggesting an AR(6) seasonality model.
 
 ### Final Verdict
-ARIMA(7, 0, 0) x $(1, 1, 0)_7$
+ARIMA(7, 0, 0)$\times(1, 1, 0)_7$
 
 \newpage
 
