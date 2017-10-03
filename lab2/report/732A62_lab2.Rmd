@@ -276,11 +276,13 @@ fit_plot <- function(model) {
     upper_band <- pred$pred + 1.96 * pred$se
     lower_band <- pred$pred - 1.96 * pred$se
 
+    n <- length(model$x)
+
     plot(c(model$x, pred$pred), type="l",
-         xlim=c(500, length(oil) + 20),
-         ylim=c(min(lower_band), max(upper_band)))
-    lines(length(oil) + 1:20, upper_band, lty=2, col="red")
-    lines(length(oil) + 1:20, lower_band, lty=2, col="red")
+         xlim=c(n - 20, n + 20),
+         ylim=c(min(lower_band), max(upper_band)), ylab="Value", xlab="Time")
+    lines(n + 1:20, upper_band, lty=2, col="red")
+    lines(n + 1:20, lower_band, lty=2, col="red")
 }
 ```
 
@@ -403,35 +405,37 @@ par(old)
 ### Difference 1
 \textbf{Seasonality behavior:} The ACF plot suggests a seasonality trend of 12 lags that tails off both in the ACF and the PACF. This suggests an $ARMA_12$ seasonality component. The PACF spikes at 3 multiples which is indicative of AR(3).
 
-There is a seasonality trend that occurs at lags 3, 5, 7, 9, 12, 15, 17, 19, 21, 24.
+\textbf{Non-seasonality behavior:} There is no distinct non-seasonal pattern to be seen.
 
-\textbf{Non-seasonality behavor:}
+Our model for this data is SARMA$(3, 1, 0)_{12}$.
 
 ### Difference 2
-\textbf{Seasonality behavior:}
+\textbf{Seasonality behavior:} We can see that there are large spikes at lags 9, 12, 15 and then it gets insignificant until the pattern repeats at lags 21, 24, 27. So there is definitely a seasonality pattern in the data. The PACF shows that the pattern tails off over time with spikes at two 2 multiples which indicates AR(2).
 
 \textbf{Non-seasonality behavor:} Apart from the seasonal behavior the ACF tails off and the PACF cuts off after lag 2 indicating an AR(2) model.
 
 ```{r}
 eacf(dlunemp)
+eacf(ddlunemp)
 ```
 
 The EACF further suggest that there is no normal ARMA model that is well suited for the data.
 
-```{r, fig.height=10, echo=FALSE}
-old <- par(mfrow=c(1, 1))
-qqnorm(dlunemp, main="Difference 1 Log Unemp", las=1)
-qqline(dlunemp, main="")
-par(old)
+```{r}
+fit1 <- Arima(lunemp, order=c(0, 0, 0), seasonal=c(3, 1, 0))
+fit1
+fit2 <- Arima(lunemp, order=c(0, 0, 0), seasonal=c(2, 2, 0))
+fit2
 ```
 
-\newpage
+The second fit has better BIC/AIC which is then our final model. It can be written formally as
+
+\begin{equation*}
+(1 + 0.6655 B + 0.337 B^2) \bigtriangledown^2 x_t = w_t.
+\end{equation*}
 
 ```{r}
-fit1 <- Arima(lunemp, order=c(1, 1, 1))
-fit1
-fit2 <- Arima(lunemp, order=c(0, 1, 3))
-fit2
-fit3 <- Arima(lunemp, order=c(0, 2, 1))
-fit3
+fit_plot(fit2)
 ```
+
+The predictions look reasonable good.
