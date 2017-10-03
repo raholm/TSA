@@ -14,17 +14,54 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## 1)
 
+```{r}
+library(astsa)
+
+plot(chicken)
+```
+
+It looks like a linear, potentially quadratic, trend.
+
 ## 2)
+
+```{r}
+lm_data <- data.frame(chicken=chicken, time=1:length(chicken))
+lm_fit <- lm(chicken ~ time, lm_data)
+z <- resid(lm_fit)
+plot(z, type="l", ylab="resid", xlab="Time")
+```
+
+The residuals do not look stationary.
 
 ## 3)
 
+```{r}
+spec.pgram(fft(z))
+```
+
 ## 4)
+
+```{r}
+
+```
 
 ## 5)
 
+```{r}
+
+```
+
 ## 6)
 
+```{r}
+
+```
+
 ## 7)
+
+```{r}
+
+```
 
 \newpage
 
@@ -32,12 +69,36 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## 1)
 
+```{r}
+
+```
+
 ## 2)
+
+```{r}
+
+```
 
 ## 3)
 
+```{r}
+
+```
+
 ## 4)
+
+```{r}
+
+```
 
 ## 5)
 
+```{r}
+
+```
+
 ## 6)
+
+```{r}
+
+```
