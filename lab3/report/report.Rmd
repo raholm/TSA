@@ -38,13 +38,35 @@ The residuals do not look stationary.
 ## 3)
 
 ```{r}
-periodogram(fft(z))
+denom <- sqrt(length(z)) *
+    exp(complex(imaginary=2 * pi * 0:(length(z) - 1) / length(z)))
+density <- fft(z) / denom
+periodigram <- abs(density)^2
+
+upper <- 2 * mean(periodigram) / qchisq(0.025, 2)
+lower <- 2 * mean(periodigram) / qchisq(0.975, 2)
+
+plot(periodigram, type="o")
+abline(h=lower)
 ```
 
 ## 4)
 
 ```{r}
+sel <- density
+sel[periodigram < lower] <- 0
 
+n <- length(z)
+ts <- 1:(n + 36)
+
+xs <- rep(0, n + 36)
+
+for (t in ts) {
+    xs[t] <- sum(sel * exp(complex(imaginary=2 * pi * (0:(n - 1)) / n * t))) / sqrt(n)
+}
+
+plot(z, type="l")
+lines(Re(xs), col="red")
 ```
 
 ## 5)
@@ -56,7 +78,6 @@ periodogram(fft(z))
 ## 6)
 
 ```{r}
-
 fit_plot <- function(model, data) {
     nahead <- 36
     pred <- predict(model, n.ahead=nahead, se.fit=TRUE)
@@ -131,7 +152,7 @@ helper <- function(data){
 old <- par(mfrow = c(3,1))
 acf(data)
 acf(data^2)
-qqnorm(data)  
+qqnorm(data)
 qqline(data)
 par(old)
 jarque.bera.test(data)
