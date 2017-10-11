@@ -210,13 +210,10 @@ acf(r^2)
 pacf(r^2)
 par(old)
 
-<<<<<<< HEAD
 
-
-=======
 fit1<- garchFit(~ arma(3,0) + garch(1,1) , data = ld_oil, trace = FALSE)
 fit1
->>>>>>> 603b86ccaa1b9b3ed104b15957f949cf4f19466f
+
 ```
 
 The time series of the residuals seem to have an increasing variance in the end of the residuals.
