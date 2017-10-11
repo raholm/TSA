@@ -34,7 +34,7 @@ z <- resid(lm_fit)
 plot(z, type="l", ylab="resid", xlab="Time")
 ```
 
-The residuals do not look stationary.
+The residuals do not look stationary. The data is definitely correlated.
 
 ## 3)
 
@@ -47,9 +47,12 @@ periodigram <- abs(density)^2
 upper <- 2 * mean(periodigram) / qchisq(0.025, 2)
 lower <- 2 * mean(periodigram) / qchisq(0.975, 2)
 
-plot(periodigram, type="o")
+plot(0:(length(chicken) - 1) / length(chicken), periodigram, type="o",
+     xlab="frequency", ylab="spectrum")
 abline(h=lower, col="red", lwd=2)
 ```
+
+We can see that low and high frequencies are the dominant frequencies. We decided to use the mean as the baseline which sets the lower limit close to zero. This results in that most non-zero frequencies are significant.
 
 ## 4)
 
@@ -66,37 +69,48 @@ for (t in ts) {
     xs[t] <- sum(freq_density * exp(complex(imaginary=2 * pi * (0:(n - 1)) / n * t))) / sqrt(n)
 }
 
-plot(z, type="l")
-lines(Re(xs), col="red")
+filtered_data <- predict(lm_fit, data.frame(time=1:length(xs))) + Re(xs)
 ```
+
+```{r, fig.height=8, echo=FALSE}
+old <- par(mfrow=c(2, 1))
+plot(z, type="l", main="Zt")
+lines(Re(xs), col="red")
+plot(1:length(chicken), chicken, type="l",
+     xlim=c(0, length(xs)),
+     ylim=c(60, max(filtered_data)),
+     main="Filtered Data")
+lines(filtered_data, col="red")
+par(old)
+```
+
+The forecast do look reasonable since it follows the general trend well.
 
 ## 5)
 
 ```{r}
-
 k <- kernel("modified.daniell", c(2,2))
-md_dan<- mvspec(z, kernel=k, log="no") 
-plot(md_dan$spec)
-md_dan$freq
-
+md_dan <- mvspec(z, kernel=k, log="no")
 Lh <- md_dan$Lh
 
-lower1<- 2 * Lh * md_dan$spec / qchisq(0.975,2*Lh)
-upper1<- 2 * Lh * md_dan$spec / qchisq(0.025,2*Lh)
+lower1 <- 2 * Lh * md_dan$spec / qchisq(0.975,2*Lh)
+upper1 <- 2 * Lh * md_dan$spec / qchisq(0.025,2*Lh)
 
+# Comparing frequencies
+
+freq_4 <- 0:179/180
+
+freq_4[periodigram > lower]
+md_dan$freq[md_dan$freq < 0.1]
+```
+
+We can see that similar frequencies were found by smoothing the spectrum so the smoothing does seem to help.
+
+```{r, echo=FALSE}
 plot(x = md_dan$freq, y = md_dan$spec, type = "o")
 lines(x = md_dan$freq, y = lower1 , col = "blue")
 lines(x = md_dan$freq, y = upper1 , col = "blue")
-
-
-# Comparing frequencies 
-
-md_dan$freq[md_dan$freq < 0.1]
-
-freq_4 <- 0:179/180
-freq_4[periodigram > lower]
 ```
-
 
 ## 6)
 
@@ -110,8 +124,7 @@ fit_plot <- function(model, data) {
     n <- length(data)
 
     plot(c(data, pred$pred), type="l",
-         xlim=c(n - nahead, n + nahead),
-         ylim=c(min(lower_band), max(upper_band)), ylab="Value", xlab="Time")
+         ylim=c(min(data), max(upper_band)), ylab="Value", xlab="Time")
     lines(n + 1:nahead, upper_band, lty=2, col="red")
     lines(n + 1:nahead, lower_band, lty=2, col="red")
 }
@@ -119,15 +132,45 @@ fit_plot <- function(model, data) {
 
 ```{r}
 fit <- arima(chicken, order=c(2, 1, 0), seasonal=list(order=c(0, 0, 1), period=12))
+residuals <- residuals(fit)
+```
+
+```{r, echo=FALSE, fig.height=8}
+old <- par(mfrow=c(2, 1))
+plot(residuals, type="l", main="Residuals")
+acf(residuals)
+par(old)
+```
+
+The model seem to fit the data decent with no correlation. However, the variance seem to decrease with time so it may not be completely stationary.
+
+```{r, echo=FALSE}
 fit_plot(fit, chicken)
 ```
+
+The forecast do not look very good because it does not follow the general trend. We would rather trust the forecast from 1.4.
 
 ## 7)
 
 ```{r}
 fit <- arima(chicken, order=c(3, 0, 0), seasonal=list(order=c(0, 0, 1), period=12))
-fit_plot(fit, chicken)
+residuals <- residuals(fit)
 ```
+
+```{r, echo=FALSE, fig.height=8}
+old <- par(mfrow=c(2, 1))
+plot(residuals, type="l", main="Residuals")
+acf(residuals)
+par(old)
+```
+
+The residuals looks similar to those from the other fit. Uncorrelated but not stationary because of changing variance.
+
+```{r}
+mvspec(residuals, log="no")
+```
+
+We can see that the spectrum is non-zero for a lot of frequencies and not just low ones. This indicates that the residuals are not stationary.
 
 \newpage
 
@@ -167,9 +210,15 @@ acf(r^2)
 pacf(r^2)
 par(old)
 
+<<<<<<< HEAD
 
 
+=======
+fit1<- garchFit(~ arma(3,0) + garch(1,1) , data = ld_oil, trace = FALSE)
+fit1
+>>>>>>> 603b86ccaa1b9b3ed104b15957f949cf4f19466f
 ```
+
 The time series of the residuals seem to have an increasing variance in the end of the residuals.
 
 The ACF of the squared residuals trails of and in the PACF they cuts of after 2 lags. Indicating a GARCH(p,q)
