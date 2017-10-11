@@ -47,7 +47,8 @@ periodigram <- abs(density)^2
 upper <- 2 * mean(periodigram) / qchisq(0.025, 2)
 lower <- 2 * mean(periodigram) / qchisq(0.975, 2)
 
-plot(periodigram, type="o")
+plot(0:(length(chicken) - 1) / length(chicken), periodigram, type="o",
+     xlab="frequency", ylab="spectrum")
 abline(h=lower, col="red", lwd=2)
 ```
 
@@ -66,37 +67,44 @@ for (t in ts) {
     xs[t] <- sum(freq_density * exp(complex(imaginary=2 * pi * (0:(n - 1)) / n * t))) / sqrt(n)
 }
 
-plot(z, type="l")
+filtered_data <- predict(lm_fit, data.frame(time=1:length(xs))) + Re(xs)
+```
+
+```{r, fig.height=8, echo=FALSE}
+old <- par(mfrow=c(2, 1))
+plot(z, type="l", main="Zt")
 lines(Re(xs), col="red")
+plot(1:length(chicken), chicken, type="l",
+     xlim=c(0, length(xs)),
+     ylim=c(60, max(filtered_data)),
+     main="Filtered Data")
+lines(filtered_data, col="red")
+par(old)
 ```
 
 ## 5)
 
 ```{r}
-
 k <- kernel("modified.daniell", c(2,2))
-md_dan<- mvspec(z, kernel=k, log="no") 
-plot(md_dan$spec)
-md_dan$freq
-
+md_dan <- mvspec(z, kernel=k, log="no")
 Lh <- md_dan$Lh
 
-lower1<- 2 * Lh * md_dan$spec / qchisq(0.975,2*Lh)
-upper1<- 2 * Lh * md_dan$spec / qchisq(0.025,2*Lh)
+lower1 <- 2 * Lh * md_dan$spec / qchisq(0.975,2*Lh)
+upper1 <- 2 * Lh * md_dan$spec / qchisq(0.025,2*Lh)
 
+# Comparing frequencies
+
+freq_4 <- 0:179/180
+
+freq_4[periodigram > lower]
+md_dan$freq[md_dan$freq < 0.1]
+```
+
+```{r, echo=FALSE}
 plot(x = md_dan$freq, y = md_dan$spec, type = "o")
 lines(x = md_dan$freq, y = lower1 , col = "blue")
 lines(x = md_dan$freq, y = upper1 , col = "blue")
-
-
-# Comparing frequencies 
-
-md_dan$freq[md_dan$freq < 0.1]
-
-freq_4 <- 0:179/180
-freq_4[periodigram > lower]
 ```
-
 
 ## 6)
 
@@ -110,8 +118,7 @@ fit_plot <- function(model, data) {
     n <- length(data)
 
     plot(c(data, pred$pred), type="l",
-         xlim=c(n - nahead, n + nahead),
-         ylim=c(min(lower_band), max(upper_band)), ylab="Value", xlab="Time")
+         ylim=c(min(data), max(upper_band)), ylab="Value", xlab="Time")
     lines(n + 1:nahead, upper_band, lty=2, col="red")
     lines(n + 1:nahead, lower_band, lty=2, col="red")
 }
