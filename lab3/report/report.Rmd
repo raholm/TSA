@@ -18,6 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(astsa)
 library(TSA)
 library(forecast)
+library(fGarch)
 
 plot(chicken)
 ```
@@ -73,7 +74,29 @@ lines(Re(xs), col="red")
 
 ```{r}
 
+k <- kernel("modified.daniell", c(2,2))
+md_dan<- mvspec(z, kernel=k, log="no") 
+plot(md_dan$spec)
+md_dan$freq
+
+Lh <- md_dan$Lh
+
+lower1<- 2 * Lh * md_dan$spec / qchisq(0.975,2*Lh)
+upper1<- 2 * Lh * md_dan$spec / qchisq(0.025,2*Lh)
+
+plot(x = md_dan$freq, y = md_dan$spec, type = "o")
+lines(x = md_dan$freq, y = lower1 , col = "blue")
+lines(x = md_dan$freq, y = upper1 , col = "blue")
+
+
+# Comparing frequencies 
+
+md_dan$freq[md_dan$freq < 0.1]
+
+freq_4 <- 0:179/180
+freq_4[periodigram > lower]
 ```
+
 
 ## 6)
 
@@ -138,6 +161,10 @@ old <- par(mfrow = c(1,2))
 acf(r^2)
 pacf(r^2)
 par(old)
+
+
+fit1<- garchFit(~ arma(3,0) + garch(1,0) , data = ld_oil, trace = FALSE)
+fit1
 ```
 The time series of the residuals seem to have an increasing variance in the end of the residuals.
 
@@ -149,15 +176,16 @@ The ACF of the squared residuals trails of and in the PACF they cuts of after 2 
 
 
 helper <- function(data){
-old <- par(mfrow = c(3,1))
 acf(data)
 acf(data^2)
 qqnorm(data)
 qqline(data)
-par(old)
-jarque.bera.test(data)
-Box.test(data, type = "Ljung-Box")
+
 }
+
+
+helper(fit1@residuals)
+fit1@fit$objective
 
 ```
 
