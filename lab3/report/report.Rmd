@@ -8,6 +8,10 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(astsa)
+library(TSA)
+library(forecast)
+library(fGarch)
 ```
 
 # Assignment 1
@@ -15,10 +19,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## 1)
 
 ```{r}
-library(astsa)
-library(TSA)
-library(forecast)
-library(fGarch)
+
 
 plot(chicken)
 ```
@@ -273,6 +274,7 @@ The AIC and BIC are measures only intressting with another model so its hard to 
 plot(z, type ="l")
 lines(volatility(fit1), col = "red")
 ```
+
 The volatility seems to match the patterns of the observed data very well. Even matching the outliers resonably good.
 
 ## 5)
@@ -285,6 +287,7 @@ sims <- garch.sim(alpha = c(omega.fit1, alpha.fit1) , n = 500)
 plot(z, type ="l")
 lines(sims,  col = "red")
 ```
+
 The red simulated data seems to be quite similar to the observed data which is a good sign that we choosen the right model.
 
 
