@@ -48,14 +48,14 @@ upper <- 2 * mean(periodigram) / qchisq(0.025, 2)
 lower <- 2 * mean(periodigram) / qchisq(0.975, 2)
 
 plot(periodigram, type="o")
-abline(h=lower)
+abline(h=lower, col="red", lwd=2)
 ```
 
 ## 4)
 
 ```{r}
-sel <- density
-sel[periodigram < lower] <- 0
+freq_density <- density
+freq_density[periodigram < lower] <- 0
 
 n <- length(z)
 ts <- 1:(n + 36)
@@ -63,7 +63,7 @@ ts <- 1:(n + 36)
 xs <- rep(0, n + 36)
 
 for (t in ts) {
-    xs[t] <- sum(sel * exp(complex(imaginary=2 * pi * (0:(n - 1)) / n * t))) / sqrt(n)
+    xs[t] <- sum(freq_density * exp(complex(imaginary=2 * pi * (0:(n - 1)) / n * t))) / sqrt(n)
 }
 
 plot(z, type="l")
